@@ -1,0 +1,135 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/xeno_hero"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/xeno_hero\/xeno_background_image": [
+            {
+                "href": ""
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/xeno_hero\/xeno_content": [
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "014820d7-7c9d-4bbe-bdbc-e0664205b45e"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "xeno_hero"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T19:27:35+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "3"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "node"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "field_paragraphs"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/xeno_hero\/xeno_background_image": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/file\/file"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "e81caeac-543f-48d2-98af-eae531c252d1"
+                    }
+                ],
+                "alt": "Canyon",
+                "title": "",
+                "width": "2048",
+                "height": "1279"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/xeno_hero\/xeno_content": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "094cb0fa-02d9-479d-9ebb-8386ff4b05e1"
+                    }
+                ],
+                "target_revision_id": "942"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_columns"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "1e73042b-2ad2-4ad5-8408-0f235561babf"
+                    }
+                ],
+                "target_revision_id": "952"
+            }
+        ]
+    }
+}

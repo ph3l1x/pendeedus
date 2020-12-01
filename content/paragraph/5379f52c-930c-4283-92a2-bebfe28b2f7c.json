@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "5379f52c-930c-4283-92a2-bebfe28b2f7c"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T13:49:37+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "68"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "field_grid_items"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<h2>Owner Search<\/h2>\r\nCurrent Owner Search (details)\r\nTwo Owner Search (details)\r\nThree Owner Search (details)\r\nGood-Stop Search (details)\r\nOwner and Encumbrace (O&E) (details)\r\nDeed Chains (details)",
+            "format": "full_html",
+            "processed": "<h2>Owner Search<\/h2>\nCurrent Owner Search (details)\nTwo Owner Search (details)\nThree Owner Search (details)\nGood-Stop Search (details)\nOwner and Encumbrace (O&amp;E) (details)\nDeed Chains (details)"
+        }
+    ]
+}

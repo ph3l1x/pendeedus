@@ -1,0 +1,18 @@
+uuid: c9680f63-952a-43db-82b7-8cd22bd8cac9
+langcode: en
+status: true
+dependencies:
+  module:
+    - profile
+id: profile.field_doc_minority
+field_name: field_doc_minority
+entity_type: profile
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

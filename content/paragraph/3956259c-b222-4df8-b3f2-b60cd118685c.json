@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "3956259c-b222-4df8-b3f2-b60cd118685c"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T14:14:36+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "60"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<p>From client to courthouse, we have full order tracking transparency. The fundamentals of Abstracting hasn't changed much in a hundred years; however, technology changes daily. We are driving to merge the two and we work tirelessly to ensure our workflows adopt the latest in beneficial technological advancements.<\/p>\r\n",
+            "format": "full_html",
+            "processed": "<p>From client to courthouse, we have full order tracking transparency. The fundamentals of Abstracting hasn't changed much in a hundred years; however, technology changes daily. We are driving to merge the two and we work tirelessly to ensure our workflows adopt the latest in beneficial technological advancements.<\/p>\n"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+uuid: a82da570-9964-4936-95a3-d603239267af
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_note
+id: doc_request.doc_request.field_note
+field_name: field_note
+entity_type: doc_request
+bundle: doc_request
+label: Note
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

@@ -1,0 +1,23 @@
+uuid: 4df32286-77c9-4772-bc43-49fcc995665b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.field_doc_naltea
+    - profile.type.documents
+id: profile.documents.field_doc_naltea
+field_name: field_doc_naltea
+entity_type: profile
+bundle: documents
+label: 'NALTEA Certified'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

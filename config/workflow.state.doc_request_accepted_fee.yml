@@ -1,0 +1,12 @@
+uuid: 58845d34-d341-4988-a80b-48097a249387
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_accepted_fee
+label: 'Accepted fee'
+module: workflow
+wid: doc_request
+weight: -4
+sysid: 0

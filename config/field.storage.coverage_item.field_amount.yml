@@ -1,0 +1,18 @@
+uuid: c45c10be-e948-426e-888d-99249d461077
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: coverage_item.field_amount
+field_name: field_amount
+entity_type: coverage_item
+type: float
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

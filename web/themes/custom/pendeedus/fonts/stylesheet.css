@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'Born Ready Upright';
+    src: url('BornReadyUpright-Regular.eot');
+    src: url('BornReadyUpright-Regular.eot?#iefix') format('embedded-opentype'),
+        url('BornReadyUpright-Regular.woff2') format('woff2'),
+        url('BornReadyUpright-Regular.woff') format('woff'),
+        url('BornReadyUpright-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+

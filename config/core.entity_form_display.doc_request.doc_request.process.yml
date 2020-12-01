@@ -1,0 +1,58 @@
+uuid: fc8a99e9-034c-4769-a06c-5ec1c86a9ff7
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.doc_request.process
+    - eck.eck_type.doc_request.doc_request
+    - field.field.doc_request.doc_request.field_additional_fee
+    - field.field.doc_request.doc_request.field_area
+    - field.field.doc_request.doc_request.field_book
+    - field.field.doc_request.doc_request.field_documents
+    - field.field.doc_request.doc_request.field_email_copy_in_addition
+    - field.field.doc_request.doc_request.field_footer
+    - field.field.doc_request.doc_request.field_instrument
+    - field.field.doc_request.doc_request.field_not_available
+    - field.field.doc_request.doc_request.field_note
+    - field.field.doc_request.doc_request.field_page
+    - field.field.doc_request.doc_request.field_workflow
+  module:
+    - file
+id: doc_request.doc_request.process
+targetEntityType: doc_request
+bundle: doc_request
+mode: process
+content:
+  field_additional_fee:
+    type: number
+    weight: 2
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_documents:
+    type: file_generic
+    weight: 1
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_not_available:
+    type: boolean_checkbox
+    weight: 0
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_area: true
+  field_book: true
+  field_email_copy_in_addition: true
+  field_footer: true
+  field_instrument: true
+  field_note: true
+  field_page: true
+  field_workflow: true
+  path: true
+  uid: true

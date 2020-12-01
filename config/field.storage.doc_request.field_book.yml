@@ -1,0 +1,25 @@
+uuid: 19d68440-35e4-4957-87d6-1de2cae9bd02
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+    - field_permissions
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: doc_request.field_book
+field_name: field_book
+entity_type: doc_request
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

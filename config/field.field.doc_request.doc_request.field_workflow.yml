@@ -1,0 +1,22 @@
+uuid: 4bc575d0-ef98-416d-9bcf-300621a1d1ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_workflow
+  module:
+    - workflow
+id: doc_request.doc_request.field_workflow
+field_name: field_workflow
+entity_type: doc_request
+bundle: doc_request
+label: State
+description: ''
+required: true
+translatable: false
+default_value:
+  - {  }
+default_value_callback: ''
+settings: {  }
+field_type: workflow

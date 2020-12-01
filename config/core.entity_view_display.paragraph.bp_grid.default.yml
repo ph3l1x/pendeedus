@@ -1,0 +1,26 @@
+uuid: b0076626-68f0-4d13-8683-dc82c0989d94
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.bp_grid.bp_background
+    - field.field.paragraph.bp_grid.field_grid_items
+    - paragraphs.paragraphs_type.bp_grid
+  module:
+    - entity_reference_revisions
+id: paragraph.bp_grid.default
+targetEntityType: paragraph
+bundle: bp_grid
+mode: default
+content:
+  field_grid_items:
+    type: entity_reference_revisions_entity_view
+    weight: 0
+    label: hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    region: content
+hidden:
+  bp_background: true

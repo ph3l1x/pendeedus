@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "5812d9cc-486f-4ddb-84ee-3e62976c6283"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-04T15:35:03+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "13"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<p>From ranches in Wyoming to condos in California, we are your one stop for all residential property research. Whether you are doing a Refi, HELOC, 2nd Preforclosure, Foreclosure Sale, REO, Transfer Assignment... we have a product to fit your needs. If not, we will customize one for you. <\/p>",
+            "format": "full_html",
+            "processed": "<p>From ranches in Wyoming to condos in California, we are your one stop for all residential property research. Whether you are doing a Refi, HELOC, 2nd Preforclosure, Foreclosure Sale, REO, Transfer Assignment... we have a product to fit your needs. If not, we will customize one for you. <\/p>"
+        }
+    ]
+}

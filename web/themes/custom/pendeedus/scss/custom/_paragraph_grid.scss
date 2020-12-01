@@ -1,0 +1,45 @@
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.paragraph--type--bp-grid {
+  > .container > .row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    padding: ($grid-gutter-width / 2) 0;
+
+    > div {
+      padding: $grid-gutter-width / 2;
+      flex-basis: 100%;
+      @include media-breakpoint-up(md) {
+        flex-basis: 50%;
+      }
+
+      > .paragraph {
+        height: 100%;
+        background-image: url(../images/custom/grid-bg.jpg);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: center;
+        box-shadow: 0 0 10px 5px #aaaaaa;
+
+        > .paragraph__column {
+          padding: ($grid-gutter-width / 2);
+          @include media-breakpoint-up(lg) {
+            padding: $grid-gutter-width;
+          }
+        }
+
+        &.paragraph--type--bp-image {
+          .field--name-bp-image-field {
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}
+

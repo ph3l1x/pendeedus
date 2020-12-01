@@ -1,0 +1,9 @@
+uuid: 8f41da40-8afd-49e2-90d5-dc939a2f47e6
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_entity_type.area_coverage
+type: area_coverage
+name: 'Area Coverage'
+description: ''

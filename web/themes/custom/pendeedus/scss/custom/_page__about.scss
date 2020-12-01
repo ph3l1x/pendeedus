@@ -1,0 +1,18 @@
+.node.node--about {
+  .paragraph--type--xeno-hero {
+    h1, h2, h3, p {
+      color: $gray-900;
+      text-shadow: 1px 1px 1px $gray-300;
+    }
+
+    .paragraph--type--bp-simple {
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+
+      p {
+        text-align: center;
+      }
+    }
+  }
+}

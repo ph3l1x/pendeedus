@@ -1,0 +1,15 @@
+uuid: 43548ae3-87f3-41bf-9ef0-ac815a59a5ab
+langcode: en
+status: true
+dependencies: {  }
+id: doc_request
+label: 'Doc Request'
+module: workflow
+options:
+  name_as_title: 0
+  fieldset: 0
+  options: buttons
+  schedule_timezone: 0
+  always_update_entity: 0
+  comment_log_node: 0
+  watchdog_log: 0

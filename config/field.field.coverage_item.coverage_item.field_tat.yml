@@ -1,0 +1,23 @@
+uuid: aff63011-d9b7-423a-8983-271f4301d3f9
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.coverage_item.coverage_item
+    - field.storage.coverage_item.field_tat
+  module:
+    - options
+id: coverage_item.coverage_item.field_tat
+field_name: field_tat
+entity_type: coverage_item
+bundle: coverage_item
+label: 'Turnaround Time'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 24h
+default_value_callback: ''
+settings: {  }
+field_type: list_string

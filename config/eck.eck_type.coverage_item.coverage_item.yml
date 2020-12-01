@@ -1,0 +1,9 @@
+uuid: 869b6a05-8e05-4c8e-b076-48fdfe09ea94
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_entity_type.coverage_item
+type: coverage_item
+name: 'Coverage Item'
+description: ''

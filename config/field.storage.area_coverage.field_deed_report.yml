@@ -1,0 +1,19 @@
+uuid: 867e21ee-b049-44b5-a716-70144cb642ec
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_deed_report
+field_name: field_deed_report
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

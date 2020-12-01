@@ -1,0 +1,23 @@
+uuid: c9869e3c-8878-487d-b4a1-04a31423629d
+langcode: en
+status: true
+dependencies:
+  module:
+    - file
+    - profile
+id: profile.field_doc_eo
+field_name: field_doc_eo
+entity_type: profile
+type: file
+settings:
+  display_field: false
+  display_default: false
+  uri_scheme: public
+  target_type: file
+module: file
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

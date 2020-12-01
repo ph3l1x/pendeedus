@@ -1,0 +1,27 @@
+uuid: a1f02ac9-f2e1-430d-8c68-c16367e4270a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.field_doc_w9
+    - profile.type.documents
+  module:
+    - file
+id: profile.documents.field_doc_w9
+field_name: field_doc_w9
+entity_type: profile
+bundle: documents
+label: W-9
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: ''
+  description_field: false
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file

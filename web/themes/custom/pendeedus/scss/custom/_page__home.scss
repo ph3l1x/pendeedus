@@ -1,0 +1,19 @@
+.node {
+  &.node--home {
+    .paragraph--type--xeno-hero {
+      justify-content: space-around;
+      h1 {
+        font-size: 4em;
+        margin-bottom: 0.25em;
+      }
+      p {
+        font-size: 2em;
+        text-align: right;
+        @include media-breakpoint-up(md) {
+          padding-right: 15ex;
+          margin-top: 300px;
+        }
+      }
+    }
+  }
+}

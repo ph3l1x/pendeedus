@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "d81c88fe-8001-486c-acc5-e1c593a08347"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T19:52:53+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "70"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "xeno_content"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<h1>Pendeedus Products<\/h1>",
+            "format": "full_html",
+            "processed": "<h1>Pendeedus Products<\/h1>"
+        }
+    ]
+}

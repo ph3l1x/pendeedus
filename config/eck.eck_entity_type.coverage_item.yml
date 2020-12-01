@@ -1,0 +1,10 @@
+uuid: 3ee4e6af-8297-4139-acf3-d3f64f3e99b7
+langcode: en
+status: true
+dependencies: {  }
+id: coverage_item
+label: 'Coverage Item'
+created: true
+changed: true
+uid: true
+title: false

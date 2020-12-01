@@ -1,0 +1,19 @@
+uuid: 89239e44-dd9f-42e9-a67d-c35dd185280d
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_charged
+    - workflow.state.doc_request_pending
+id: doc_request_pending_charged
+label: null
+module: workflow
+from_sid: doc_request_pending
+to_sid: doc_request_charged
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

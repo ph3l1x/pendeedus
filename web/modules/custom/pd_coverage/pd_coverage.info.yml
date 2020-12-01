@@ -1,0 +1,9 @@
+name: PENDEEDUS Coverage
+description: Custom functionality for coverage management.
+type: module
+package: Custom
+core: 8.x
+dependencies:
+  - eck:eck
+  - inline_entity_form:inline_entity_form
+

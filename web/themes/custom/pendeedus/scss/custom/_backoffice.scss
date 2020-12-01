@@ -1,0 +1,94 @@
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+.backoffice {
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  overflow-y: scroll;
+
+  .dialog-off-canvas-main-canvas {
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    flex-grow: 1;
+  }
+
+  #toolbar-administration {
+    position: absolute;
+  }
+
+  #backoffice-sidebar {
+    flex-basis: 300px;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+  }
+
+  #page-wrapper {
+    flex-grow: 1;
+
+  }
+
+  #header {
+    background: linear-gradient(0deg, $c-boticelli 0%, $c-jungle-mist 100%) !important;
+    margin-bottom: $spacer;
+  }
+
+  .region-secondary-menu {
+    padding: $spacer (2 * $spacer);
+
+    .menu--account {
+      float: right;
+    }
+
+    &:after {
+      display: block;
+      clear: both;
+      content: "";
+    }
+
+    .nav-link {
+      background-color: $c-lochinvar;
+      color: #fff;
+      padding: 5px 10px;
+      transition: background-color 200ms ease-out;
+
+      &:hover {
+        background-color: $c-surfie-green;
+      }
+    }
+  }
+}
+
+#backoffice-sidebar {
+  background: linear-gradient(90deg, $c-surfie-green 0%, $c-lochinvar 100%) !important;
+
+  .navbar-brand {
+    width: 100%;
+    text-align: center;
+    margin-top: $spacer;
+    margin-bottom: $spacer;
+  }
+
+  .nav {
+    display: block;
+  }
+
+  .nav-item {
+    display: block;
+    text-align: center;
+  }
+
+  .nav-link {
+    color: #fff !important;
+  }
+
+
+}

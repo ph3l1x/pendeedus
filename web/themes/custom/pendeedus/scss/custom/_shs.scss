@@ -1,0 +1,15 @@
+.shs-processed {
+  &.hidden {
+    display: none;
+  }
+}
+
+
+.shs-select {
+  @extend .custom-select;
+}
+
+
+.shs-widget-container + .shs-widget-container {
+  margin-left: $spacer;
+}

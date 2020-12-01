@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "b6f370ad-66e7-4ee0-8842-cb02ec199cfc"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T14:17:43+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "68"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "field_grid_items"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "All Abstracts are examined and consolidated into a PDF format then organized to your preference. Client specific requirements are triple check then report accompanies each search package. These reports can be on your template or our default report summary. Results customization is at your full control. \r\n",
+            "format": "full_html",
+            "processed": "All Abstracts are examined and consolidated into a PDF format then organized to your preference. Client specific requirements are triple check then report accompanies each search package. These reports can be on your template or our default report summary. Results customization is at your full control. \n"
+        }
+    ]
+}

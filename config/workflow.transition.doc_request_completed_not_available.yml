@@ -1,0 +1,19 @@
+uuid: 2f1540ae-ace3-4089-b443-f9e1c3e1b2c6
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_completed
+    - workflow.state.doc_request_not_available
+id: doc_request_completed_not_available
+label: null
+module: workflow
+from_sid: doc_request_completed
+to_sid: doc_request_not_available
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

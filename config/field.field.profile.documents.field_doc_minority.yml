@@ -1,0 +1,23 @@
+uuid: 8bac8359-8ec0-424f-9218-5a5d7d7356b7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.field_doc_minority
+    - profile.type.documents
+id: profile.documents.field_doc_minority
+field_name: field_doc_minority
+entity_type: profile
+bundle: documents
+label: 'Minority Owned'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

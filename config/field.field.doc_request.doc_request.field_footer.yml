@@ -1,0 +1,25 @@
+uuid: ac11dc14-3e52-4ae5-9c24-796f58664665
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_footer
+  module:
+    - markup
+id: doc_request.doc_request.field_footer
+field_name: field_footer
+entity_type: doc_request
+bundle: doc_request
+label: Footer
+description: ''
+required: false
+translatable: false
+default_value:
+  - {  }
+default_value_callback: ''
+settings:
+  markup:
+    value: '<p>Must have a credit card on file. If the document is in our system a $2.00 fee will be applied if the document is not disputed within 24 hours.</p>'
+    format: full_html
+field_type: markup

@@ -1,0 +1,29 @@
+uuid: 2d1b124c-d385-4fbc-8e8f-86becd70cde8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.field_area
+    - profile.type.vendor
+    - taxonomy.vocabulary.areas
+id: profile.vendor.field_area
+field_name: field_area
+entity_type: profile
+bundle: vendor
+label: Area
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      areas: areas
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

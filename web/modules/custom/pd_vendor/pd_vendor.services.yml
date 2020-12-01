@@ -1,0 +1,5 @@
+services:
+  pd_vendor.route_subscriber:
+    class: Drupal\pd_vendor\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

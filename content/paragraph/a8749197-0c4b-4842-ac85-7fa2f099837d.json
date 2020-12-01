@@ -1,0 +1,90 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_column_wrapper"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_column_wrapper\/bp_column_content_w": [
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "a8749197-0c4b-4842-ac85-7fa2f099837d"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_column_wrapper"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-05T10:56:11+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "26"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_2"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_column_wrapper\/bp_column_content_w": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "c0863ce7-d693-460c-8065-d1aa7d0bc98a"
+                    }
+                ],
+                "target_revision_id": "897"
+            }
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+uuid: 0faecced-89ef-45f4-b28a-c54f6338eba0
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_update
+field_name: field_update
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,28 @@
+uuid: 37c4c481-f940-4dc1-9c9d-8819dc42022f
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+    - eck.eck_type.coverage_item.coverage_item
+    - field.storage.area_coverage.field_current_owner
+id: area_coverage.area_coverage.field_current_owner
+field_name: field_current_owner
+entity_type: area_coverage
+bundle: area_coverage
+label: 'Current Owner'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:coverage_item'
+  handler_settings:
+    target_bundles:
+      coverage_item: coverage_item
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

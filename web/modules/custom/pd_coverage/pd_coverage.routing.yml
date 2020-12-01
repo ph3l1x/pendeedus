@@ -1,0 +1,7 @@
+pd_coverage.coverage_area_selector_form:
+  path: '/coverage'
+  defaults:
+    _form: '\Drupal\pd_coverage\Form\CoverageAreaSelectorForm'
+    _title: 'Coverage / Pricing'
+  requirements:
+    _permission: 'manage coverage'

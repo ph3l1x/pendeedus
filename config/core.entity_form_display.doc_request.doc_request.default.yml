@@ -1,0 +1,100 @@
+uuid: 385df2be-4160-48dd-844b-ea20763d4d2f
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.field.doc_request.doc_request.field_additional_fee
+    - field.field.doc_request.doc_request.field_area
+    - field.field.doc_request.doc_request.field_book
+    - field.field.doc_request.doc_request.field_documents
+    - field.field.doc_request.doc_request.field_email_copy_in_addition
+    - field.field.doc_request.doc_request.field_footer
+    - field.field.doc_request.doc_request.field_instrument
+    - field.field.doc_request.doc_request.field_not_available
+    - field.field.doc_request.doc_request.field_note
+    - field.field.doc_request.doc_request.field_page
+    - field.field.doc_request.doc_request.field_workflow
+  module:
+    - markup
+    - path
+    - shs
+    - workflow
+id: doc_request.doc_request.default
+targetEntityType: doc_request
+bundle: doc_request
+mode: default
+content:
+  field_area:
+    weight: 0
+    settings:
+      force_deepest: true
+      create_new_items: false
+      create_new_levels: false
+      display_node_count: false
+    third_party_settings: {  }
+    type: options_shs
+    region: content
+  field_book:
+    weight: 2
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_email_copy_in_addition:
+    weight: 5
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_footer:
+    weight: 7
+    settings: {  }
+    third_party_settings: {  }
+    type: markup
+    region: content
+  field_instrument:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_note:
+    weight: 4
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+    region: content
+  field_page:
+    weight: 3
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_workflow:
+    weight: 8
+    settings: {  }
+    third_party_settings: {  }
+    type: workflow_default
+    region: content
+  path:
+    type: path
+    weight: 6
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_additional_fee: true
+  field_documents: true
+  field_not_available: true
+  uid: true

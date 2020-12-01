@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "139f4b5d-0d5d-4dcc-8494-83a43d39d7e1"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-04T15:41:49+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "17"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<p>A Net-Zero Carbon footprint is more than a goal, it is a mission. A paperless office environment,  the latest in energy efficient, clean technology, removal of single use plastics and the adoption of smart shipping and travel techniques will make Pendeedus a friend to mother earth. \r\n<\/p>",
+            "format": "full_html",
+            "processed": "<p>A Net-Zero Carbon footprint is more than a goal, it is a mission. A paperless office environment,  the latest in energy efficient, clean technology, removal of single use plastics and the adoption of smart shipping and travel techniques will make Pendeedus a friend to mother earth. \n<\/p>"
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "7b614057-0582-4f5d-b837-1a4fffaec3a8"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T14:11:30+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "57"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<p>We spend a lot of time ensuring quality never falters during our push to be faster and more affordable. This is one area that is never compromised. We invest a lot of time and resources to make sure we are proactive when it comes to high-quality products not reactive to mistakes. Putting your trust in Pendeedus puts quality in your pocket. <\/p>\r\n",
+            "format": "full_html",
+            "processed": "<p>We spend a lot of time ensuring quality never falters during our push to be faster and more affordable. This is one area that is never compromised. We invest a lot of time and resources to make sure we are proactive when it comes to high-quality products not reactive to mistakes. Putting your trust in Pendeedus puts quality in your pocket. <\/p>\n"
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+nodejs:
+  js:
+    pd_request.nodejs.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

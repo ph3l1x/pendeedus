@@ -1,0 +1,121 @@
+body.node--type-page {
+  h1 {
+    font-family: $font-bornreadyupright;
+    font-size: 3em;
+    margin-bottom: 0.5em;
+  }
+
+  .paragraph--type--xeno-hero {
+    text-shadow: 1px 1px 1px $gray-500;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    @include media-breakpoint-up(md) {
+      padding: 40px;
+    }
+
+    min-height: 100vh;
+    min-height: calc(100vh - 110px);
+
+    .paragraph--type--xeno-hero__image {
+      background-size: cover;
+    }
+
+    > div:not(.paragraph--type--xeno-hero__image) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .paragraph--type--bp-grid {
+      > .container > .row > div {
+        .paragraph--type--bp-simple {
+          background-image: none;
+          box-shadow: none;
+
+          > .paragraph__column {
+            background-color: rgba($gray-900, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            height: 100%;
+          }
+        }
+      }
+    }
+
+    a {
+      color: #fff;
+    }
+  }
+
+  .paragraph--type--bp-grid {
+    .paragraph--type--bp-column-wrapper {
+      > .paragraph__column > div {
+        > .paragraph--type--bp-image {
+          .field--name-bp-image-field {
+            @include media-breakpoint-up(sm) {
+              float: none;
+              margin: 0;
+              text-align: center;
+              img {
+                width: 300px;
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+
+    }
+  }
+
+  &:not(.path-frontpage) {
+    .paragraph--type--xeno-hero {
+      h1 {
+        text-align: center;
+      }
+    }
+  }
+
+}
+
+.page-user-password,
+.page-user-login,
+.page-user-reset,
+.page-user-register {
+  h1.title {
+    font-size: 2rem;
+    margin-bottom: 1em;
+  }
+
+  main .region-content {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  #main-wrapper {
+    background-image: url("../images/custom/ranch.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    flex: 1 1 auto;
+
+  }
+
+  #page {
+    min-height: 100vh;
+  }
+}
+
+#user-header {
+  font-family: $font-bornreadyupright;
+  font-size: 3rem;
+  color: $gray-900;
+  margin: 1em auto 0;
+  text-align: center;
+}

@@ -1,0 +1,12 @@
+uuid: eb2d3005-706b-47e7-be99-3e4a2fd3be09
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_accepted_fee
+id: doc_request_accepted_fee_accepted_fee
+label: ''
+module: workflow
+from_sid: doc_request_accepted_fee
+to_sid: doc_request_accepted_fee
+roles: {  }

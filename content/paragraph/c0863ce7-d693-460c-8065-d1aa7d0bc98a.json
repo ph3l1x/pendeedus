@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "c0863ce7-d693-460c-8065-d1aa7d0bc98a"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-05T10:56:22+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "25"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<p>We dedicate ourselves to our clients, vendors, community and each other. We foster professional partnerships that exceed the latest levels of expections while maintaining some of the oldest of values<\/p>\r\n\r\n<p>Pendeedus is your company. I am just fortunate to be a part of it. <\/p>\r\n\r\n<p>Autumn Bowers<br\/>\r\nPresident<\/p>\r\n",
+            "format": "full_html",
+            "processed": "<p>We dedicate ourselves to our clients, vendors, community and each other. We foster professional partnerships that exceed the latest levels of expections while maintaining some of the oldest of values<\/p>\n\n<p>Pendeedus is your company. I am just fortunate to be a part of it. <\/p>\n\n<p>Autumn Bowers<br \/>\nPresident<\/p>\n"
+        }
+    ]
+}

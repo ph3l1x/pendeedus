@@ -1,0 +1,21 @@
+uuid: 2bc42db7-d17d-4dfa-bee0-e44f39b5736a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_class
+    - paragraphs.paragraphs_type.bp_simple
+  module:
+    - entity_class
+id: paragraph.bp_simple.field_class
+field_name: field_class
+entity_type: paragraph
+bundle: bp_simple
+label: Class
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: entity_class

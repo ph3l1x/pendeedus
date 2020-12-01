@@ -1,0 +1,3 @@
+manage coverage:
+  title: 'Manage coverage'
+  description: 'Allows to create and update coverage items.'

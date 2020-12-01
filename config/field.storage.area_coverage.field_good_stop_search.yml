@@ -1,0 +1,19 @@
+uuid: ed60f013-fea0-4131-b2cd-33c18c50fade
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_good_stop_search
+field_name: field_good_stop_search
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

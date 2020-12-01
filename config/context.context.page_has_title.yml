@@ -1,0 +1,43 @@
+uuid: 71b34f34-2922-4fc2-9448-8520284f46f9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+name: page_has_title
+label: 'Page has title'
+group: Layout
+description: ''
+requireAllConditions: false
+disabled: false
+conditions:
+  node_type:
+    id: node_type
+    bundles:
+      page: page
+    negate: true
+    uuid: 4ee798e6-361a-49f4-877b-1c4a8834701c
+    context_mapping:
+      node: '@node.node_route_context:node'
+reactions:
+  blocks:
+    blocks:
+      7b6a9437-449f-4435-b4cf-1a817d667cbb:
+        id: page_title_block
+        label: 'Page title'
+        provider: core
+        label_display: '0'
+        region: featured_top
+        weight: '0'
+        context_mapping: {  }
+        custom_id: page_title_block
+        theme: pendeedus
+        css_class: ''
+        unique: 0
+        context_id: page_has_title
+        uuid: 7b6a9437-449f-4435-b4cf-1a817d667cbb
+    id: blocks
+    saved: false
+    uuid: 1568d258-893a-400e-b329-5135883a7710
+    include_default_blocks: 1
+weight: 0

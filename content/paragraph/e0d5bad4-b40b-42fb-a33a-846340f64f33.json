@@ -1,0 +1,114 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_columns_two_uneven"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_columns_two_uneven\/bp_column_content_2": [
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "e0d5bad4-b40b-42fb-a33a-846340f64f33"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_columns_two_uneven"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T19:44:52+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "48"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_columns_two_uneven\/bp_column_content_2": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_image"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "bf41f165-d496-4c30-9204-e953fc270ed0"
+                    }
+                ],
+                "target_revision_id": "949"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "b0a37d5d-9fed-4f61-9e93-85bfdddbd400"
+                    }
+                ],
+                "target_revision_id": "950"
+            }
+        ]
+    },
+    "bp_column_style_2": [
+        {
+            "value": "paragraph--style--33-66"
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "507089d1-9030-42cf-9354-4fbf01e29052"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T15:41:59+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "53"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "Streamline, efficiency, TAT compliance, response time. These are all words heard daily on the Pendeedus floor. We make it a point to turn all products as quickly as possible while maintaining constant communication with our clients and vendors. From the moment an order is received, it is being clocked for TAT compliance for which we are better than 95% within 24 hours. ",
+            "format": "full_html",
+            "processed": "Streamline, efficiency, TAT compliance, response time. These are all words heard daily on the Pendeedus floor. We make it a point to turn all products as quickly as possible while maintaining constant communication with our clients and vendors. From the moment an order is received, it is being clocked for TAT compliance for which we are better than 95% within 24 hours. "
+        }
+    ]
+}

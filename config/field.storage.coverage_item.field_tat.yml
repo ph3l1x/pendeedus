@@ -1,0 +1,30 @@
+uuid: 48bbaf8f-882d-4ba3-b25d-af78ee3dc8d9
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+    - options
+id: coverage_item.field_tat
+field_name: field_tat
+entity_type: coverage_item
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 24h
+      label: '24 hours'
+    -
+      value: 48h
+      label: '48 hours'
+    -
+      value: 72h
+      label: '72 hours'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,25 @@
+uuid: a13e61f4-4d86-42a8-8960-9d36ce3316ae
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_default_price
+    - taxonomy.vocabulary.areas
+id: taxonomy_term.areas.field_default_price
+field_name: field_default_price
+entity_type: taxonomy_term
+bundle: areas
+label: 'Default price'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: !!float 2
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: float

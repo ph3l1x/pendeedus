@@ -1,0 +1,36 @@
+uuid: 997d195d-a2df-490f-8922-7d335f217c49
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.bp_grid.bp_background
+    - field.field.paragraph.bp_grid.field_grid_items
+    - paragraphs.paragraphs_type.bp_grid
+  module:
+    - paragraphs
+id: paragraph.bp_grid.default
+targetEntityType: paragraph
+bundle: bp_grid
+mode: default
+content:
+  bp_background:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+  field_grid_items:
+    type: entity_reference_paragraphs
+    weight: 1
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+    third_party_settings: {  }
+    region: content
+hidden:
+  created: true
+  status: true

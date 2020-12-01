@@ -1,0 +1,28 @@
+uuid: 581f6c08-173a-4c13-a15c-2af38a6925b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+    - eck.eck_type.coverage_item.coverage_item
+    - field.storage.area_coverage.field_deed_report
+id: area_coverage.area_coverage.field_deed_report
+field_name: field_deed_report
+entity_type: area_coverage
+bundle: area_coverage
+label: 'Deed Report'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:coverage_item'
+  handler_settings:
+    target_bundles:
+      coverage_item: coverage_item
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

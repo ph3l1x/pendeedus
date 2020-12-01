@@ -1,0 +1,155 @@
+{
+    "_links": {
+        "self": {
+            "href": "http:\/\/pendeedus.ub\/contact?_format=hal_json"
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/node\/page"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/revision_uid": [
+            {
+                "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/uid": [
+            {
+                "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json",
+                "lang": "en"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/field_paragraphs": [
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "bef67081-2039-482f-b121-aaf301664fb3"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "page"
+        }
+    ],
+    "revision_timestamp": [
+        {
+            "value": "2020-10-09T17:22:50+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/revision_uid": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/user\/user"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "97eb4930-6e89-4a0d-939a-61134e472dff"
+                    }
+                ]
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/uid": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/user\/user"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "97eb4930-6e89-4a0d-939a-61134e472dff"
+                    }
+                ],
+                "lang": "en"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/field_paragraphs": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/xeno_hero"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "014820d7-7c9d-4bbe-bdbc-e0664205b45e"
+                    }
+                ],
+                "target_revision_id": "953"
+            }
+        ]
+    },
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "title": [
+        {
+            "value": "Contact",
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T19:26:39+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2020-10-09T17:22:50+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "promote": [
+        {
+            "value": false,
+            "lang": "en"
+        }
+    ],
+    "sticky": [
+        {
+            "value": false,
+            "lang": "en"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "path": [
+        {
+            "alias": "\/contact",
+            "pid": 1,
+            "langcode": "en",
+            "lang": "en"
+        }
+    ]
+}

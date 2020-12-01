@@ -1,0 +1,29 @@
+uuid: b182313b-d4ee-491c-8c27-86c9744fec8a
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+    - field.storage.area_coverage.field_area
+    - taxonomy.vocabulary.areas
+id: area_coverage.area_coverage.field_area
+field_name: field_area
+entity_type: area_coverage
+bundle: area_coverage
+label: Area
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      areas: areas
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

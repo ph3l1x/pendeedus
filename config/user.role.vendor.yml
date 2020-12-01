@@ -1,0 +1,29 @@
+uuid: 8eca5001-f4a8-46d8-82f8-35c292024279
+langcode: en
+status: true
+dependencies: {  }
+id: vendor
+label: Vendor
+weight: 2
+is_admin: null
+permissions:
+  - 'access doc_request workflow_transition form'
+  - 'create area_coverage entities'
+  - 'create coverage profile'
+  - 'create coverage_item entities'
+  - 'create doc_request entities'
+  - 'create doc_request workflow_transition'
+  - 'create documents profile'
+  - 'edit own area_coverage entities'
+  - 'edit own coverage_item entities'
+  - 'manage coverage'
+  - 'update own coverage profile'
+  - 'update own documents profile'
+  - 'update own vendor profile'
+  - 'view own area_coverage entities'
+  - 'view own coverage profile'
+  - 'view own coverage_item entities'
+  - 'view own doc_request entities'
+  - 'view own documents profile'
+  - 'view own field_documents'
+  - 'view own vendor profile'

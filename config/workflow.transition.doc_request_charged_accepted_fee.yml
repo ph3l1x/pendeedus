@@ -1,0 +1,19 @@
+uuid: 32155f01-65c2-49aa-9bf3-5c9b4d1cf861
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_accepted_fee
+    - workflow.state.doc_request_charged
+id: doc_request_charged_accepted_fee
+label: null
+module: workflow
+from_sid: doc_request_charged
+to_sid: doc_request_accepted_fee
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

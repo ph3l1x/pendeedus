@@ -1,0 +1,27 @@
+uuid: 9ed7fa58-2fba-48cf-ac3d-a6f86da012b4
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+    - field_permissions
+    - file
+third_party_settings:
+  field_permissions:
+    permission_type: custom
+id: doc_request.field_documents
+field_name: field_documents
+entity_type: doc_request
+type: file
+settings:
+  display_field: false
+  display_default: false
+  uri_scheme: private
+  target_type: file
+module: file
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

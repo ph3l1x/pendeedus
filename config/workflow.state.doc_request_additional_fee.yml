@@ -1,0 +1,12 @@
+uuid: 69b21d03-74e9-404e-987d-c7bd37dfa81c
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_additional_fee
+label: 'Additional fee'
+module: workflow
+wid: doc_request
+weight: -5
+sysid: 0

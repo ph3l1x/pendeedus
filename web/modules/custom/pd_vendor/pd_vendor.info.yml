@@ -1,0 +1,8 @@
+name: PENDEEDUS Vendor
+description: Custom functionality for vendor management.
+type: module
+package: Custom
+core: 8.x
+dependencies:
+  - user:user
+

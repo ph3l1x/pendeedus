@@ -1,0 +1,19 @@
+enable: 1
+rid_anonymous:
+  weigth: '0'
+  path: ''
+rid_authenticated:
+  weigth: '0'
+  path: ''
+rid_vendor:
+  enabled: '1'
+  weigth: '0'
+  path: /admin/content/doc_request/add/doc_request
+rid_employee:
+  enabled: '1'
+  weigth: '0'
+  path: /requests
+rid_administrator:
+  enabled: '1'
+  weigth: '0'
+  path: /requests

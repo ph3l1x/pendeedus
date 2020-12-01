@@ -1,0 +1,19 @@
+uuid: 26ea347e-867f-442f-82be-c94a78e3259a
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_mortgage_search
+field_name: field_mortgage_search
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,19 @@
+uuid: bf21025d-2c9e-4eb4-bf6b-a1fe551ad30e
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_judgment
+field_name: field_judgment
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,5 @@
+multiple_registration_path_vendor: vendor/register
+multiple_registration_url_vendor: /user/register/vendor
+multiple_registration_hidden_vendor: 0
+multiple_registration_form_mode_register_vendor: register
+multiple_registration_form_mode_edit_vendor: default

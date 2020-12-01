@@ -1,0 +1,164 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\pd_request\DocRequestStateManager;
+use Drupal\user\Entity\User;
+use Drupal\workflow\Entity\WorkflowTransition;
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function pd_request_preprocess_page(&$variables) {
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
+  if (!$logged_in) {
+    # Add libraries for anonymous
+    $libraries['#attached']['library'][] = 'core/drupal.ajax';
+    render($libraries);
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function pd_request_entity_type_alter(array &$entity_types) {
+  $default_handler_class = $entity_types['doc_request']->getHandlerClasses()['form']['default'];
+  $entity_types['doc_request']->setFormClass('process', $default_handler_class);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function pd_request_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  return;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function pd_request_form_system_theme_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Add needed options.
+  if (isset($form["layout"]["sidebar_second"]["bootstrap_barrio_sidebar_second_width"])) {
+    $form["layout"]["sidebar_second"]["bootstrap_barrio_sidebar_second_width"]['#options'][5] = t('5 cols');
+    $form["layout"]["sidebar_second"]["bootstrap_barrio_sidebar_second_width"]['#options'][6] = t('6 cols');
+    $form["layout"]["sidebar_second"]["bootstrap_barrio_sidebar_second_width"]['#options'][7] = t('7 cols');
+    $form["layout"]["sidebar_second"]["bootstrap_barrio_sidebar_second_width"]['#options'][8] = t('8 cols');
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function pd_request_form_doc_request_doc_request_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Alter button name.
+  $form["actions"]["submit"]["#value"] = t('Submit');
+  $form["actions"]["submit"]["#submit"][] = 'pd_request_form_doc_request_doc_request_form_submit';
+}
+
+/**
+ * Form submit callback.
+ */
+function pd_request_form_doc_request_doc_request_form_submit($form, FormStateInterface $form_state) {
+  \Drupal::messenger()->addStatus(t('Document request has been submitted.'));
+  $form_state->setRedirect('eck.entity.add', [
+    'eck_entity_type' => 'doc_request',
+    'eck_entity_bundle' => 'doc_request',
+  ]);
+}
+
+/**
+ * Implements hook_nodejs_handlers_info().
+ */
+function pd_request_nodejs_handlers_info() {
+  return ['pd_request/nodejs'];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function pd_request_doc_request_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  /** @var  \Drupal\eck\Entity\EckEntity $entity */
+  // Change state if relevant.
+  $manager = new DocRequestStateManager($entity);
+  $manager->processUpdate();
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function pd_request_doc_request_insert(Drupal\Core\Entity\EntityInterface $entity) {
+  pd_request_doc_request_update($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_update().
+ */
+function pd_request_doc_request_update(Drupal\Core\Entity\EntityInterface $entity) {
+  /** @var \Drupal\eck\Entity\EckEntity $entity */
+  if (\Drupal::moduleHandler()->moduleExists('nodejs')) {
+    $message = (object) array(
+      'channel' => 'nodejs_user_' . $entity->getOwnerId(),
+      'callback' => 'pdRequest',
+    );
+
+    nodejs_enqueue_message($message);
+
+    $message = (object) array(
+      'channel' => 'employee',
+      'callback' => 'pdRequest',
+    );
+
+    nodejs_enqueue_message($message);
+  }
+}
+
+/**
+ * Implements hook_nodejs_user_channels().
+ */
+function pd_request_nodejs_user_channels($auth_user) {
+  \Drupal::logger(__FUNCTION__)->info(print_r($auth_user, 1));
+  if (!empty($auth_user->uid)) {
+    /** @var User $account */
+    $account = User::load($auth_user->uid);
+    if ($account->hasRole('employee') || $account->hasRole('administrator')) {
+      return ['employee'];
+    }
+  }
+
+  return [];
+}
+
+function delete_old_entity_type() {
+  foreach (entity_load_multiple('request') as $entity) {
+    $entity->delete();
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function pd_request_form_doc_request_doc_request_process_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form["field_additional_fee"]['#states'] = $form["field_documents"]['#states'] = [
+    'invisible' => [
+      ':input[name="field_not_available[value]"]' => array('checked' => TRUE),
+    ],
+  ];
+
+  /** @var \Drupal\eck\Form\Entity\EckEntityForm $callback_object */
+  $callback_object = $form_state->getBuildInfo()['callback_object'];
+
+  $form['#action'] = '/requests?doc_request=' . $callback_object->getEntity()
+      ->id();
+  $form["actions"]["submit"]["#submit"][] = 'pd_request_form_doc_request_doc_request_process_form_submit';
+}
+
+function pd_request_form_doc_request_doc_request_process_form_submit($form, FormStateInterface $form_state) {
+  $callback_object = $form_state->getBuildInfo()['callback_object'];
+
+  $form_state->setRedirect('view.doc_requests.page_1', [], [
+    'query' => [
+      'doc_request' => $callback_object->getEntity()
+        ->id(),
+    ],
+  ]);
+}
+

@@ -1,0 +1,18 @@
+uuid: 3f03bb66-deac-4cdf-95f9-a8f1a2703eb9
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: coverage_item.field_includes_copies
+field_name: field_includes_copies
+entity_type: coverage_item
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

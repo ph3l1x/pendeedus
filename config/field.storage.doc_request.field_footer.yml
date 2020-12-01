@@ -1,0 +1,23 @@
+uuid: 4aaa0501-490a-4785-9549-c6d1678b3bbe
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+    - field_permissions
+    - markup
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: doc_request.field_footer
+field_name: field_footer
+entity_type: doc_request
+type: markup
+settings: {  }
+module: markup
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

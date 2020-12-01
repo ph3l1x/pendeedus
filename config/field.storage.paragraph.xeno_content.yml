@@ -1,0 +1,22 @@
+uuid: 1fbe320e-62f3-4c20-a21a-0819cf8f75e4
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - paragraphs
+_core:
+  default_config_hash: dfqqA0_8sUVAlg5pbnR8knX8jWdJ8mRaIsIbiGoyXwU
+id: paragraph.xeno_content
+field_name: xeno_content
+entity_type: paragraph
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: 6
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

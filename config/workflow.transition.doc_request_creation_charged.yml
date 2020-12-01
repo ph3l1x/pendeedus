@@ -1,0 +1,19 @@
+uuid: 74af7604-7aa1-428e-bd36-9e17c86f1f6f
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_charged
+    - workflow.state.doc_request_creation
+id: doc_request_creation_charged
+label: null
+module: workflow
+from_sid: doc_request_creation
+to_sid: doc_request_charged
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

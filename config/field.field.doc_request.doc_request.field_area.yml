@@ -1,0 +1,29 @@
+uuid: e7d46ad8-cbc7-4891-b36c-7b28ecc96c9c
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_area
+    - taxonomy.vocabulary.areas
+id: doc_request.doc_request.field_area
+field_name: field_area
+entity_type: doc_request
+bundle: doc_request
+label: Area
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      areas: areas
+    sort:
+      field: name
+      direction: asc
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

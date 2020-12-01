@@ -1,0 +1,180 @@
+{
+    "_links": {
+        "self": {
+            "href": "http:\/\/pendeedus.ub\/node\/1?_format=hal_json"
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/node\/page"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/revision_uid": [
+            {
+                "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/uid": [
+            {
+                "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json",
+                "lang": "en"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/field_paragraphs": [
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "65240a62-b43b-42c2-9bd7-c6f866b36b5c"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "page"
+        }
+    ],
+    "revision_timestamp": [
+        {
+            "value": "2020-10-09T17:20:53+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/revision_uid": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/user\/user"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "97eb4930-6e89-4a0d-939a-61134e472dff"
+                    }
+                ]
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/uid": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/user\/user"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "97eb4930-6e89-4a0d-939a-61134e472dff"
+                    }
+                ],
+                "lang": "en"
+            }
+        ],
+        "http:\/\/pendeedus.ub\/rest\/relation\/node\/page\/field_paragraphs": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/xeno_hero"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "1904f96c-d15f-49d6-ac77-d0290f58cd67"
+                    }
+                ],
+                "target_revision_id": "924"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_grid"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "cbbe1985-de3a-4f57-9a30-30aa27897848"
+                    }
+                ],
+                "target_revision_id": "941"
+            }
+        ]
+    },
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "title": [
+        {
+            "value": "Home",
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-04T12:55:23+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2020-10-09T17:20:53+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "promote": [
+        {
+            "value": false,
+            "lang": "en"
+        }
+    ],
+    "sticky": [
+        {
+            "value": false,
+            "lang": "en"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "path": [
+        {
+            "alias": null,
+            "pid": null,
+            "langcode": "en",
+            "lang": "en"
+        }
+    ]
+}

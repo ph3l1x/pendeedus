@@ -1,0 +1,214 @@
+uuid: 49db845b-6b58-4f53-be27-6a9ae6cbc357
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+    - field.field.area_coverage.area_coverage.field_10_year
+    - field.field.area_coverage.area_coverage.field_20_year
+    - field.field.area_coverage.area_coverage.field_30_year
+    - field.field.area_coverage.area_coverage.field_area
+    - field.field.area_coverage.area_coverage.field_current_owner
+    - field.field.area_coverage.area_coverage.field_deed_report
+    - field.field.area_coverage.area_coverage.field_document_retrieval
+    - field.field.area_coverage.area_coverage.field_full_search
+    - field.field.area_coverage.area_coverage.field_good_stop_search
+    - field.field.area_coverage.area_coverage.field_judgment
+    - field.field.area_coverage.area_coverage.field_mortgage_search
+    - field.field.area_coverage.area_coverage.field_reo
+    - field.field.area_coverage.area_coverage.field_three_owner
+    - field.field.area_coverage.area_coverage.field_two_owner
+    - field.field.area_coverage.area_coverage.field_update
+  module:
+    - inline_entity_form
+id: area_coverage.area_coverage.default
+targetEntityType: area_coverage
+bundle: area_coverage
+mode: default
+content:
+  field_10_year:
+    type: inline_entity_form_simple
+    weight: 0
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_20_year:
+    type: inline_entity_form_simple
+    weight: 1
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_30_year:
+    type: inline_entity_form_simple
+    weight: 2
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_current_owner:
+    type: inline_entity_form_simple
+    weight: 3
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_deed_report:
+    type: inline_entity_form_simple
+    weight: 4
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_document_retrieval:
+    type: inline_entity_form_simple
+    weight: 5
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_full_search:
+    type: inline_entity_form_simple
+    weight: 6
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_good_stop_search:
+    type: inline_entity_form_simple
+    weight: 7
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_judgment:
+    type: inline_entity_form_simple
+    weight: 8
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_mortgage_search:
+    type: inline_entity_form_simple
+    weight: 9
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_reo:
+    type: inline_entity_form_simple
+    weight: 10
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_three_owner:
+    type: inline_entity_form_simple
+    weight: 11
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_two_owner:
+    type: inline_entity_form_simple
+    weight: 12
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+  field_update:
+    type: inline_entity_form_simple
+    weight: 13
+    region: content
+    settings:
+      form_mode: default
+      revision: false
+      override_labels: false
+      label_singular: ''
+      label_plural: ''
+      collapsible: false
+      collapsed: false
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_area: true
+  uid: true

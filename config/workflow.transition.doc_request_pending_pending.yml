@@ -1,0 +1,12 @@
+uuid: 31cc80d8-8ab0-4459-be07-be3e6153f31e
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_pending
+id: doc_request_pending_pending
+label: ''
+module: workflow
+from_sid: doc_request_pending
+to_sid: doc_request_pending
+roles: {  }

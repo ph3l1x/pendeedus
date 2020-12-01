@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "695aea77-1c00-45aa-a6b1-5575e45e20d5"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-05T10:58:30+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "33"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<h2 class=\"text-center\">The Team<\/h2>\r\n<p>At Pendeedus employees are rigorously vetted, background screened, thoroughly trained, tested & NALTEA certified. We pride ourselves on being knowledgeable in the industry. The team has weekly continued educational presentations as well as costumer service collaborations. Quality, Efficiency, Transparency, Knowledge and Costumer Service are all attributes we aim to master at Pendeedus. <\/p>\r\n",
+            "format": "full_html",
+            "processed": "<h2 class=\"text-center\">The Team<\/h2>\n<p>At Pendeedus employees are rigorously vetted, background screened, thoroughly trained, tested &amp; NALTEA certified. We pride ourselves on being knowledgeable in the industry. The team has weekly continued educational presentations as well as costumer service collaborations. Quality, Efficiency, Transparency, Knowledge and Costumer Service are all attributes we aim to master at Pendeedus. <\/p>\n"
+        }
+    ]
+}

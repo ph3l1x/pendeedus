@@ -1,0 +1,25 @@
+uuid: ece72c86-8f00-4613-93cd-5960e77cfcfa
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+    - field_permissions
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: doc_request.field_instrument
+field_name: field_instrument
+entity_type: doc_request
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

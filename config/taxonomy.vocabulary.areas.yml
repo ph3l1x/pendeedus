@@ -1,0 +1,8 @@
+uuid: 90fcb324-1c45-4a3f-ad3a-da0847183f4c
+langcode: en
+status: true
+dependencies: {  }
+name: Areas
+vid: areas
+description: 'States and counties.'
+weight: 0

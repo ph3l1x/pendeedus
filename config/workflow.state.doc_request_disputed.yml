@@ -1,0 +1,12 @@
+uuid: 64daa094-7a98-4aa8-ad89-1709b37f84ce
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_disputed
+label: Disputed
+module: workflow
+wid: doc_request
+weight: -3
+sysid: 0

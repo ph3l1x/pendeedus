@@ -1,0 +1,18 @@
+uuid: 48aaf8e2-c744-4974-99fb-75ef07d2f68a
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: taxonomy_term.field_default_price
+field_name: field_default_price
+entity_type: taxonomy_term
+type: float
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

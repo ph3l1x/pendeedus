@@ -1,0 +1,21 @@
+uuid: 9eb2d928-ccb4-4811-805b-7f0df893a129
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_class
+    - node.type.page
+  module:
+    - entity_class
+id: node.page.field_class
+field_name: field_class
+entity_type: node
+bundle: page
+label: Class
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: entity_class

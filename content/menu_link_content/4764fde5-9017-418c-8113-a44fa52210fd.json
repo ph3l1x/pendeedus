@@ -1,0 +1,119 @@
+{
+    "_links": {
+        "self": {
+            "href": "http:\/\/pendeedus.ub\/admin\/structure\/menu\/item\/3\/edit?_format=hal_json"
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/menu_link_content\/menu_link_content"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/menu_link_content\/menu_link_content\/menu_link_content_target_entity": [
+            {
+                "href": "http:\/\/pendeedus.ub\/node\/2?_format=hal_json"
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "4764fde5-9017-418c-8113-a44fa52210fd"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "bundle": [
+        {
+            "value": "menu_link_content"
+        }
+    ],
+    "revision_created": [
+        {
+            "value": "2020-10-05T10:59:17+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "enabled": [
+        {
+            "value": true
+        }
+    ],
+    "title": [
+        {
+            "value": "About Us",
+            "lang": "en"
+        }
+    ],
+    "menu_name": [
+        {
+            "value": "main"
+        }
+    ],
+    "link": [
+        {
+            "uri": "entity:node\/2",
+            "title": null,
+            "options": [],
+            "target_uuid": "6614f1fd-6033-4a85-aa23-effe8ec41233"
+        }
+    ],
+    "external": [
+        {
+            "value": false
+        }
+    ],
+    "rediscover": [
+        {
+            "value": false
+        }
+    ],
+    "weight": [
+        {
+            "value": 1
+        }
+    ],
+    "expanded": [
+        {
+            "value": false
+        }
+    ],
+    "changed": [
+        {
+            "value": "2020-10-05T10:59:17+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "revision_translation_affected": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/menu_link_content\/menu_link_content\/menu_link_content_target_entity": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "http:\/\/pendeedus.ub\/node\/2?_format=hal_json"
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/node\/page"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "6614f1fd-6033-4a85-aa23-effe8ec41233"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,12 @@
+uuid: 6bb44bf2-3224-4ad0-9427-0bd4cdca3705
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_completed
+label: Completed
+module: workflow
+wid: doc_request
+weight: -6
+sysid: 0

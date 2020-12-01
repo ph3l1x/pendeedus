@@ -1,0 +1,22 @@
+uuid: 5ff60cd6-45ad-4773-87a0-6995a4f0dec6
+langcode: en
+status: true
+dependencies:
+  module:
+    - entity_class
+    - node
+id: node.field_class
+field_name: field_class
+entity_type: node
+type: entity_class
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: entity_class
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

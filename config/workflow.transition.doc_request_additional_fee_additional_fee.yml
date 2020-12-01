@@ -1,0 +1,12 @@
+uuid: 203aae2b-2f63-45b8-be0b-eef8f5b126c7
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_additional_fee
+id: doc_request_additional_fee_additional_fee
+label: ''
+module: workflow
+from_sid: doc_request_additional_fee
+to_sid: doc_request_additional_fee
+roles: {  }

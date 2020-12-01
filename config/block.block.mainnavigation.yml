@@ -1,0 +1,44 @@
+uuid: c76467f7-7571-46c0-9ffe-167ae44f2991
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - context
+    - system
+    - user
+  theme:
+    - pendeedus
+id: mainnavigation
+theme: pendeedus
+region: primary_menu
+weight: -4
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Main navigation'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+  expand_all_items: false
+visibility:
+  view_inclusion:
+    id: view_inclusion
+    negate: null
+    view_inclusion: {  }
+    context_mapping: {  }
+  request_path_exclusion:
+    id: request_path_exclusion
+    pages: ''
+    negate: null
+    context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      anonymous: anonymous
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

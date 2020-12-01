@@ -1,0 +1,23 @@
+uuid: e02fe280-6ee7-478c-b232-bf4a3e7148b5
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_not_available
+id: doc_request.doc_request.field_not_available
+field_name: field_not_available
+entity_type: doc_request
+bundle: doc_request
+label: 'Not Available'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

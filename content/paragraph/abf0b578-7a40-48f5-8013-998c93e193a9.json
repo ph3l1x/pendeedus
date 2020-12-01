@@ -1,0 +1,147 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_grid"
+        },
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_grid\/field_grid_items": [
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            },
+            {
+                "href": ""
+            }
+        ]
+    },
+    "uuid": [
+        {
+            "value": "abf0b578-7a40-48f5-8013-998c93e193a9"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_grid"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-05T10:54:15+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "2"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "node"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "field_paragraphs"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "_embedded": {
+        "http:\/\/pendeedus.ub\/rest\/relation\/paragraph\/bp_grid\/field_grid_items": [
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_column_wrapper"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "bd77a50c-4dc2-46bc-89e6-8cfee9f619a4"
+                    }
+                ],
+                "target_revision_id": "900"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_column_wrapper"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "0c30468d-fd3a-4c0b-a08a-dc55bc7cee5c"
+                    }
+                ],
+                "target_revision_id": "904"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_column_wrapper"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "852f6db1-bbce-48ba-9c3f-044c40781d72"
+                    }
+                ],
+                "target_revision_id": "907"
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": ""
+                    },
+                    "type": {
+                        "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_column_wrapper"
+                    }
+                },
+                "uuid": [
+                    {
+                        "value": "7d807199-718b-49a0-9053-4683e7761143"
+                    }
+                ],
+                "target_revision_id": "911"
+            }
+        ]
+    }
+}

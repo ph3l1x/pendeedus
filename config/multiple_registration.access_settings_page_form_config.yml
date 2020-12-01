@@ -1,0 +1,6 @@
+multiple_registration_pages_white_list:
+  vendor: vendor
+  anonymous: 0
+  authenticated: 0
+  employee: 0
+  administrator: 0

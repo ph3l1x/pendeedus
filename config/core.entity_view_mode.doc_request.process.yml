@@ -1,0 +1,10 @@
+uuid: b760361e-1529-48e7-957a-537a437d96a9
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: doc_request.process
+label: Process
+targetEntityType: doc_request
+cache: true

@@ -1,0 +1,12 @@
+uuid: aa1d651b-9abe-4693-af35-68145f55a7d8
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_charged
+label: Charged
+module: workflow
+wid: doc_request
+weight: -2
+sysid: 0

@@ -1,0 +1,11 @@
+request.process:
+  path: '/request/{doc_request}/process'
+  defaults:
+    _title: 'Process request'
+    _controller: '\Drupal\pd_request\Controller\DocRequestProcessController::view'
+  options:
+    parameters:
+      request:
+        type: 'entity:doc_request'
+  requirements:
+    _permission: 'access content'

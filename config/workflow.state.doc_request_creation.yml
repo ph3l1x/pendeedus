@@ -1,0 +1,12 @@
+uuid: ad6094ed-e894-4249-869b-77fa8d6f3bc5
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_creation
+label: Creation
+module: workflow
+wid: doc_request
+weight: -11
+sysid: 1

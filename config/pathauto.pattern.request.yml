@@ -1,0 +1,14 @@
+uuid: 439393d9-c2d0-4b57-bfea-b2773eab4c8e
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: request
+label: Request
+type: 'canonical_entities:doc_request'
+pattern: 'request/[doc_request:id]'
+selection_criteria: {  }
+selection_logic: and
+weight: 0
+relationships: {  }

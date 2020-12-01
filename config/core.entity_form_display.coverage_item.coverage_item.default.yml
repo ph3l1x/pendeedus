@@ -1,0 +1,45 @@
+uuid: 13c44576-242d-4392-999f-97023ad734e1
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.coverage_item.coverage_item
+    - field.field.coverage_item.coverage_item.field_amount
+    - field.field.coverage_item.coverage_item.field_includes_copies
+    - field.field.coverage_item.coverage_item.field_plus_copies
+    - field.field.coverage_item.coverage_item.field_tat
+id: coverage_item.coverage_item.default
+targetEntityType: coverage_item
+bundle: coverage_item
+mode: default
+content:
+  field_amount:
+    weight: 0
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    type: number
+    region: content
+  field_includes_copies:
+    weight: 1
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_plus_copies:
+    weight: 2
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_tat:
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+hidden:
+  created: true
+  uid: true

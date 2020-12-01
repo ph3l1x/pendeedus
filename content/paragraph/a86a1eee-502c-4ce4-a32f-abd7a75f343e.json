@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "a86a1eee-502c-4ce4-a32f-abd7a75f343e"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T19:42:30+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "44"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_2"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<h2>Robert Perez<\/h2>\r\n<h4>Chief Operating Officer<\/h4>\r\n\r\n<p><a href=\"mailto:alex.bukach@example.com\">Email<\/a> &nbsp;&nbsp;&nbsp; <a href=\"tel:+375297025699\">Phone<\/a><\/p>",
+            "format": "full_html",
+            "processed": "<h2>Robert Perez<\/h2>\n<h4>Chief Operating Officer<\/h4>\n\n<p><a href=\"mailto:alex.bukach@example.com\">Email<\/a> \u00a0\u00a0\u00a0 <a href=\"tel:+375297025699\">Phone<\/a><\/p>"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+uuid: d531543d-37ba-4e38-a431-82344ac28bd8
+langcode: en
+status: true
+dependencies: {  }
+id: documents
+label: Documents
+display_label: Documents
+multiple: false
+registration: false
+roles: {  }
+allow_revisions: false
+new_revision: false

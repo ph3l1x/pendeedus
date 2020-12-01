@@ -1,0 +1,8 @@
+uuid: 804c6421-27af-4503-9d38-d8eb7f97c345
+langcode: en
+status: true
+dependencies: {  }
+id: vendor
+label: Vendor
+description: ''
+locked: false

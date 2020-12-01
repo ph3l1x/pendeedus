@@ -1,0 +1,18 @@
+uuid: cb60df8e-b3ea-4807-8952-4f1697b5583d
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+id: area_coverage.area_coverage.created
+field_name: created
+entity_type: area_coverage
+bundle: area_coverage
+label: Created
+description: 'The time that the entity was created.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: created

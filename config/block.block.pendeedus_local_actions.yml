@@ -1,0 +1,20 @@
+uuid: 9d7647f7-5250-4308-a3e8-6605f9cd0e9d
+langcode: en
+status: true
+dependencies:
+  theme:
+    - pendeedus
+_core:
+  default_config_hash: PffmQ-ABSz5tFjWmVsR7NesunDnEivvopnJnBjl8KNE
+id: pendeedus_local_actions
+theme: pendeedus
+region: content
+weight: -3
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  provider: core
+  label_display: '0'
+visibility: {  }

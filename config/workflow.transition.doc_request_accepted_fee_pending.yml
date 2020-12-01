@@ -1,0 +1,19 @@
+uuid: f62254f3-99d4-48f9-8199-ec8f595986f3
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_accepted_fee
+    - workflow.state.doc_request_pending
+id: doc_request_accepted_fee_pending
+label: null
+module: workflow
+from_sid: doc_request_accepted_fee
+to_sid: doc_request_pending
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "d2362b3c-ada8-474b-a6d7-90a47797cdcd"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-05T10:53:37+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "22"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "xeno_content"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "<h1>Pendeedus, Inc<\/h1>\r\n<p>Pendeedus is a premier nationwide title research company. Our network of qualified Abstractor and Examiners are held to the highest level of professionalism. We believe quality, customer service and speed are three branches of one product, never compromising one for the other. Our proprietary software allows us to track orders in real time, collaborate with our local researchers and provide clear communication from client to courthouse. We are nestled in the beautiful Idaho Treasure Valley. With mutual respect we can achieve mutual success. Pendeedus serves its clients, vendors, employees, community and earth with the best it has to offer. \r\n<\/p>",
+            "format": "full_html",
+            "processed": "<h1>Pendeedus, Inc<\/h1>\n<p>Pendeedus is a premier nationwide title research company. Our network of qualified Abstractor and Examiners are held to the highest level of professionalism. We believe quality, customer service and speed are three branches of one product, never compromising one for the other. Our proprietary software allows us to track orders in real time, collaborate with our local researchers and provide clear communication from client to courthouse. We are nestled in the beautiful Idaho Treasure Valley. With mutual respect we can achieve mutual success. Pendeedus serves its clients, vendors, employees, community and earth with the best it has to offer. \n<\/p>"
+        }
+    ]
+}

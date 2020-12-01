@@ -1,0 +1,31 @@
+uuid: 0f62f777-d4f7-490a-b8c2-79d08d0cf3ac
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.vendor.field_address
+    - field.field.profile.vendor.field_area
+    - profile.type.vendor
+  module:
+    - address
+id: profile.vendor.default
+targetEntityType: profile
+bundle: vendor
+mode: default
+content:
+  field_address:
+    weight: 0
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: address_default
+    region: content
+  field_area:
+    weight: 1
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+hidden: {  }

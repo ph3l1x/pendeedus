@@ -1,0 +1,28 @@
+.node.node--contact {
+  .paragraph--type--xeno-hero {
+    h1 {
+      color: $gray-900;
+    }
+
+    .paragraph--type--bp-columns {
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+
+      .paragraph--type--bp-columns__3col {
+        width: 50%;
+
+        &:nth-child(3n) {
+          clear: both;
+        }
+
+        .field--name-bp-image-field {
+          img {
+            width: 115px;
+            height: auto;
+          }
+        }
+      }
+    }
+  }
+}

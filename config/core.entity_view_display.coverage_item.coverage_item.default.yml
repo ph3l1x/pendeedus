@@ -1,0 +1,75 @@
+uuid: e8d72baf-e063-405d-9d3d-ad6b24e85248
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.coverage_item.coverage_item
+    - field.field.coverage_item.coverage_item.field_amount
+    - field.field.coverage_item.coverage_item.field_includes_copies
+    - field.field.coverage_item.coverage_item.field_plus_copies
+    - field.field.coverage_item.coverage_item.field_tat
+  module:
+    - options
+    - user
+id: coverage_item.coverage_item.default
+targetEntityType: coverage_item
+bundle: coverage_item
+mode: default
+content:
+  created:
+    label: hidden
+    type: timestamp
+    weight: 5
+    region: content
+    settings:
+      date_format: medium
+      custom_date_format: ''
+      timezone: ''
+    third_party_settings: {  }
+  field_amount:
+    weight: 0
+    label: hidden
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_decimal
+    region: content
+  field_includes_copies:
+    weight: 1
+    label: hidden
+    settings:
+      format: yes-no
+      format_custom_true: ''
+      format_custom_false: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_plus_copies:
+    weight: 2
+    label: hidden
+    settings:
+      format: yes-no
+      format_custom_true: ''
+      format_custom_false: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_tat:
+    weight: 3
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  uid:
+    label: hidden
+    type: author
+    weight: 4
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  changed: true

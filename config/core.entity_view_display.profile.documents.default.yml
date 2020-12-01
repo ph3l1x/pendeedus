@@ -1,0 +1,54 @@
+uuid: 420a0f56-26ed-4198-9af5-a13fc076892e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.documents.field_doc_eo
+    - field.field.profile.documents.field_doc_minority
+    - field.field.profile.documents.field_doc_naltea
+    - field.field.profile.documents.field_doc_w9
+    - profile.type.documents
+  module:
+    - file
+id: profile.documents.default
+targetEntityType: profile
+bundle: documents
+mode: default
+content:
+  field_doc_eo:
+    weight: 1
+    label: inline
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    type: file_default
+    region: content
+  field_doc_minority:
+    weight: 3
+    label: inline
+    settings:
+      format: yes-no
+      format_custom_true: ''
+      format_custom_false: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_doc_naltea:
+    weight: 2
+    label: inline
+    settings:
+      format: yes-no
+      format_custom_true: ''
+      format_custom_false: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_doc_w9:
+    weight: 0
+    label: inline
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    type: file_default
+    region: content
+hidden: {  }

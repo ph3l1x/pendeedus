@@ -1,0 +1,10 @@
+uuid: 493a0d22-4bc8-4db1-b168-756598912a80
+langcode: en
+status: true
+dependencies: {  }
+id: area_coverage
+label: 'Area Coverage'
+created: true
+changed: true
+uid: true
+title: false

@@ -1,0 +1,19 @@
+uuid: bd097237-aea7-477b-a0d1-dd89ff33297e
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: doc_request.field_note
+field_name: field_note
+entity_type: doc_request
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,29 @@
+uuid: ade39cc3-bf31-4140-bfec-69d634becc80
+langcode: en
+status: true
+dependencies: {  }
+id: employee
+label: Employee
+weight: 3
+is_admin: null
+permissions:
+  - 'access doc_request workflow_transition form'
+  - 'access user profiles'
+  - 'create coverage profile'
+  - 'create doc_request workflow_transition'
+  - 'create documents profile'
+  - 'create vendor profile'
+  - 'edit field_documents'
+  - 'edit field_status'
+  - 'update any coverage profile'
+  - 'update any documents profile'
+  - 'update any vendor profile'
+  - 'view any area_coverage entities'
+  - 'view any coverage profile'
+  - 'view any coverage_item entities'
+  - 'view any doc_request entities'
+  - 'view any documents profile'
+  - 'view any profile'
+  - 'view any vendor profile'
+  - 'view field_documents'
+  - 'view own unpublished profile'

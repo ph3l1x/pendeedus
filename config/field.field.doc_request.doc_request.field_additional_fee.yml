@@ -1,0 +1,23 @@
+uuid: c15199ab-d7e4-45b1-aa74-cd0a86c92cdb
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.doc_request.doc_request
+    - field.storage.doc_request.field_additional_fee
+id: doc_request.doc_request.field_additional_fee
+field_name: field_additional_fee
+entity_type: doc_request
+bundle: doc_request
+label: 'Additional fee'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: float

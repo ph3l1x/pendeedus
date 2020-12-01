@@ -1,0 +1,13 @@
+$font-bornreadyupright: 'Born Ready Upright';
+
+@font-face {
+  font-family: $font-bornreadyupright;
+  src: url('../fonts/BornReadyUpright-Regular.eot');
+  src: url('../fonts/BornReadyUpright-Regular.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/BornReadyUpright-Regular.woff2') format('woff2'),
+  url('../fonts/BornReadyUpright-Regular.woff') format('woff'),
+  url('../fonts/BornReadyUpright-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

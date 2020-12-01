@@ -1,0 +1,12 @@
+uuid: 1a13e22b-8082-415b-8ba1-f26883d44302
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_completed
+id: doc_request_completed_completed
+label: ''
+module: workflow
+from_sid: doc_request_completed
+to_sid: doc_request_completed
+roles: {  }

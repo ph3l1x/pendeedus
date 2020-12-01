@@ -1,0 +1,23 @@
+uuid: 00428974-9bf0-4611-92c1-219e3fb63b22
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.coverage_item.coverage_item
+    - field.storage.coverage_item.field_amount
+id: coverage_item.coverage_item.field_amount
+field_name: field_amount
+entity_type: coverage_item
+bundle: coverage_item
+label: Amount
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: !!float 0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: float

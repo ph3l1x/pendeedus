@@ -1,0 +1,72 @@
+{
+    "_links": {
+        "self": {
+            "href": ""
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/paragraph\/bp_simple"
+        }
+    },
+    "uuid": [
+        {
+            "value": "e5e0879b-7e33-411b-a0d8-cb27cf386f18"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "type": [
+        {
+            "target_id": "bp_simple"
+        }
+    ],
+    "status": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-08T15:42:25+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "parent_id": [
+        {
+            "value": "55"
+        }
+    ],
+    "parent_type": [
+        {
+            "value": "paragraph"
+        }
+    ],
+    "parent_field_name": [
+        {
+            "value": "bp_column_content_w"
+        }
+    ],
+    "behavior_settings": [
+        {
+            "value": []
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "bp_text": [
+        {
+            "value": "We've team up with industry leaders to reduce costs. We have access to title plants, courthouse documents and an extensive portfolio of prior property search packages. Navigating those pools helps save you money and time. Volumes and software benefits help us negotiate reduced fees with our US vendor partners. Combining those with internal QC efficiencies, streamlined processes and the end product is both exceptional and affordable. ",
+            "format": "full_html",
+            "processed": "We've team up with industry leaders to reduce costs. We have access to title plants, courthouse documents and an extensive portfolio of prior property search packages. Navigating those pools helps save you money and time. Volumes and software benefits help us negotiate reduced fees with our US vendor partners. Combining those with internal QC efficiencies, streamlined processes and the end product is both exceptional and affordable. "
+        }
+    ]
+}

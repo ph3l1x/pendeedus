@@ -1,0 +1,12 @@
+uuid: 2e449710-1d3b-4ff6-be20-00cb1af926ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_charged
+id: doc_request_charged_charged
+label: ''
+module: workflow
+from_sid: doc_request_charged
+to_sid: doc_request_charged
+roles: {  }

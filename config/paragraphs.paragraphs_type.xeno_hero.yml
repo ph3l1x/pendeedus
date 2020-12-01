@@ -1,0 +1,12 @@
+uuid: 93d6a80d-a2d0-4556-9d7e-36ab75c497f3
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: Ltau9fyjZ35Z8y6r6ogSQb3GPpJclPsawX2URzE-CMc
+id: xeno_hero
+label: Hero
+icon_uuid: null
+icon_default: null
+description: null
+behavior_plugins: {  }

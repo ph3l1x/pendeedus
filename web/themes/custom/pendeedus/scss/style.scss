@@ -1,0 +1,69 @@
+/*
+Theme Name: Bootstrap 4 Sass
+Description: Bootstrap 4 with Sass
+*/
+
+// import files
+@import "import";
+
+/* GENERAL STYLES
+-------------------------------------------------*/
+
+body {
+    background: $white;
+}
+
+
+/* COLORS
+--------------------------------------------------*/
+
+a {
+    color: $accent-shade;
+}
+
+.bg-inverse {
+    background: $primary-shade !important;
+}
+
+.menu--main li a {
+    color: $primary-shade;
+}
+
+.menu--account li a {
+    color: $primary-shade;
+}
+
+.site-name-slogan a {
+    text-decoration: none;
+}
+
+.card-group img {
+    margin: 0;
+    width: 100%;
+    height: auto;
+}
+
+.card-group .field--type-image {
+    margin: 0
+}
+
+.slick {
+    width: 100%;
+}
+
+.slick>div {
+    margin: 0 15px;
+}
+
+@import "custom/fonts";
+@import "custom/variables";
+@import "custom/navbar";
+@import "custom/paragraph_grid";
+@import "custom/pages";
+@import "custom/form_area_coverage";
+@import "custom/shs";
+@import "custom/backoffice";
+@import "custom/page__home";
+@import "custom/page__about";
+@import "custom/page__services";
+@import "custom/page__contact";

@@ -1,0 +1,19 @@
+uuid: 16fe1823-1d6d-4cd6-96c8-27010873c7b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_additional_fee
+    - workflow.state.doc_request_disputed
+id: doc_request_additional_fee_disputed
+label: null
+module: workflow
+from_sid: doc_request_additional_fee
+to_sid: doc_request_disputed
+roles:
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  employee: '0'
+  administrator: '0'

@@ -1,0 +1,12 @@
+uuid: e3ab7de5-d439-4a73-9984-6fee0a38ea07
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_not_available
+id: doc_request_not_available_not_available
+label: ''
+module: workflow
+from_sid: doc_request_not_available
+to_sid: doc_request_not_available
+roles: {  }

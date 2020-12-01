@@ -1,0 +1,47 @@
+uuid: 85413b0c-8b60-4635-b663-6c969babc73c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.documents.field_doc_eo
+    - field.field.profile.documents.field_doc_minority
+    - field.field.profile.documents.field_doc_naltea
+    - field.field.profile.documents.field_doc_w9
+    - profile.type.documents
+  module:
+    - file
+id: profile.documents.default
+targetEntityType: profile
+bundle: documents
+mode: default
+content:
+  field_doc_eo:
+    weight: 27
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: file_generic
+    region: content
+  field_doc_minority:
+    weight: 29
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_doc_naltea:
+    weight: 28
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
+    region: content
+  field_doc_w9:
+    weight: 26
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: file_generic
+    region: content
+hidden:
+  is_default: true

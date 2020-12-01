@@ -1,0 +1,28 @@
+uuid: a8282f38-d34f-4992-9097-05cffe67afc1
+langcode: en
+status: true
+dependencies:
+  config:
+    - eck.eck_type.area_coverage.area_coverage
+    - eck.eck_type.coverage_item.coverage_item
+    - field.storage.area_coverage.field_mortgage_search
+id: area_coverage.area_coverage.field_mortgage_search
+field_name: field_mortgage_search
+entity_type: area_coverage
+bundle: area_coverage
+label: 'Mortgage Search'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:coverage_item'
+  handler_settings:
+    target_bundles:
+      coverage_item: coverage_item
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

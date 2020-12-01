@@ -1,0 +1,54 @@
+uuid: 7eab9302-0334-44fb-a188-0cd290ee50ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.bp_simple.bp_background
+    - field.field.paragraph.bp_simple.bp_header
+    - field.field.paragraph.bp_simple.bp_text
+    - field.field.paragraph.bp_simple.bp_width
+    - field.field.paragraph.bp_simple.field_class
+    - paragraphs.paragraphs_type.bp_simple
+  module:
+    - entity_class
+    - options
+    - text
+_core:
+  default_config_hash: bxN1tJcdaoRlv2G7dZgN_nfUy4rsdOmqgPcs04HzIdc
+id: paragraph.bp_simple.default
+targetEntityType: paragraph
+bundle: bp_simple
+mode: default
+content:
+  bp_background:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_key
+    region: content
+  bp_text:
+    weight: 2
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+    region: content
+  bp_width:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_key
+    region: content
+  field_class:
+    weight: 3
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: entity_class
+    region: content
+hidden:
+  bp_header: true
+  created: true
+  uid: true

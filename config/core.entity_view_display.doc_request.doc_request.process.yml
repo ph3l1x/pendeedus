@@ -1,0 +1,103 @@
+uuid: 3074913d-9dc1-48f6-aaa0-32ab11c512db
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.doc_request.process
+    - eck.eck_type.doc_request.doc_request
+    - field.field.doc_request.doc_request.field_additional_fee
+    - field.field.doc_request.doc_request.field_area
+    - field.field.doc_request.doc_request.field_book
+    - field.field.doc_request.doc_request.field_documents
+    - field.field.doc_request.doc_request.field_email_copy_in_addition
+    - field.field.doc_request.doc_request.field_footer
+    - field.field.doc_request.doc_request.field_instrument
+    - field.field.doc_request.doc_request.field_not_available
+    - field.field.doc_request.doc_request.field_note
+    - field.field.doc_request.doc_request.field_page
+    - field.field.doc_request.doc_request.field_workflow
+  module:
+    - hierarchical_term_formatter
+    - user
+id: doc_request.doc_request.process
+targetEntityType: doc_request
+bundle: doc_request
+mode: process
+content:
+  created:
+    label: inline
+    type: timestamp
+    weight: 1
+    region: content
+    settings:
+      date_format: medium
+      custom_date_format: ''
+      timezone: ''
+    third_party_settings: {  }
+  field_area:
+    weight: 2
+    label: inline
+    settings:
+      display: all
+      wrap: none
+      separator: ' » '
+      link: false
+      reverse: false
+    third_party_settings: {  }
+    type: hierarchical_term_formatter
+    region: content
+  field_book:
+    weight: 4
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_email_copy_in_addition:
+    weight: 7
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_instrument:
+    weight: 3
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  field_note:
+    weight: 6
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+    region: content
+  field_page:
+    weight: 5
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  uid:
+    label: inline
+    type: author
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  changed: true
+  field_additional_fee: true
+  field_documents: true
+  field_footer: true
+  field_not_available: true
+  field_workflow: true

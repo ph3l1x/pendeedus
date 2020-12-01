@@ -1,0 +1,22 @@
+uuid: 437a5053-ee17-41fd-9177-7b41d0cb7ad5
+langcode: en
+status: true
+dependencies:
+  module:
+    - layout_paragraphs
+_core:
+  default_config_hash: qP6TuG6Wl--0ukK1U8eLGK9B9YbbaTzGqXMcWbjv6gs
+id: bp_column_wrapper
+label: 'Column Wrapper'
+icon_uuid: null
+icon_default: null
+description: ''
+behavior_plugins:
+  layout_paragraphs:
+    enabled: true
+    available_layouts:
+      barrio_cardbasic: 'Card basic'
+      barrio_cardheaderfooter: 'Card header footer'
+      barrio_cardimageoverlay: 'Card image overlay'
+      barrio_card3stack: 'Card three block stacked'
+      barrio_cardtopimage: 'Card top image'

@@ -1,0 +1,19 @@
+uuid: 34dfe4d6-cfde-42b1-967e-bae292f87ecd
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_20_year
+field_name: field_20_year
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

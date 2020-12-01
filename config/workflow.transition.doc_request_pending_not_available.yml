@@ -1,0 +1,19 @@
+uuid: 37bd455d-7a7d-4a63-81c8-7d9518aa2346
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.state.doc_request_not_available
+    - workflow.state.doc_request_pending
+id: doc_request_pending_not_available
+label: ''
+module: workflow
+from_sid: doc_request_pending
+to_sid: doc_request_not_available
+roles:
+  employee: employee
+  workflow_author: '0'
+  anonymous: '0'
+  authenticated: '0'
+  vendor: '0'
+  administrator: '0'

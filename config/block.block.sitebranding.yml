@@ -1,0 +1,34 @@
+uuid: f6056a20-012c-49f4-b530-60cf12d8bcbb
+langcode: en
+status: true
+dependencies:
+  module:
+    - context
+    - system
+  theme:
+    - pendeedus
+id: sitebranding
+theme: pendeedus
+region: footer_first
+weight: 0
+provider: null
+plugin: system_branding_block
+settings:
+  id: system_branding_block
+  label: 'Site branding'
+  provider: system
+  label_display: '0'
+  use_site_logo: true
+  use_site_name: false
+  use_site_slogan: false
+visibility:
+  view_inclusion:
+    id: view_inclusion
+    negate: null
+    view_inclusion: {  }
+    context_mapping: {  }
+  request_path_exclusion:
+    id: request_path_exclusion
+    pages: ''
+    negate: null
+    context_mapping: {  }

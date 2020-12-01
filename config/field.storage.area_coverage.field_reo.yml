@@ -1,0 +1,19 @@
+uuid: f10c15ae-37b8-4949-96cc-773a2db033a6
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: area_coverage.field_reo
+field_name: field_reo
+entity_type: area_coverage
+type: entity_reference
+settings:
+  target_type: coverage_item
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

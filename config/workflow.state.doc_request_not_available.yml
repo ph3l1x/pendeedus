@@ -1,0 +1,12 @@
+uuid: d2ae6f24-d929-484a-9360-6b0c43f8a40b
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_not_available
+label: 'Not Available'
+module: workflow
+wid: doc_request
+weight: -7
+sysid: 0

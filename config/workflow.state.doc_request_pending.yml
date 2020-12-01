@@ -1,0 +1,12 @@
+uuid: 4a2f2afe-c5d0-42cd-b864-fe242a9465e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - workflow.workflow.doc_request
+id: doc_request_pending
+label: Pending
+module: workflow
+wid: doc_request
+weight: -8
+sysid: 0

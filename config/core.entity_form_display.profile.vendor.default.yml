@@ -1,0 +1,33 @@
+uuid: c6ef2f4c-d545-4ea0-aa5c-6e4b9736f34c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.vendor.field_address
+    - field.field.profile.vendor.field_area
+    - profile.type.vendor
+  module:
+    - address
+id: profile.vendor.default
+targetEntityType: profile
+bundle: vendor
+mode: default
+content:
+  field_address:
+    weight: 26
+    settings: {  }
+    third_party_settings: {  }
+    type: address_container
+    region: content
+  field_area:
+    weight: 27
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+    region: content
+hidden:
+  is_default: true

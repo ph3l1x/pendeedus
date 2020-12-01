@@ -1,0 +1,18 @@
+uuid: 2569f7c1-0559-486f-ba93-4d9a70dc5d2d
+langcode: en
+status: true
+dependencies:
+  module:
+    - eck
+id: doc_request.field_email_copy_in_addition
+field_name: field_email_copy_in_addition
+entity_type: doc_request
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

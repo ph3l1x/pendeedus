@@ -1,0 +1,95 @@
+{
+    "_links": {
+        "self": {
+            "href": "http:\/\/pendeedus.ub\/user\/1?_format=hal_json"
+        },
+        "type": {
+            "href": "http:\/\/pendeedus.ub\/rest\/type\/user\/user"
+        }
+    },
+    "uuid": [
+        {
+            "value": "97eb4930-6e89-4a0d-939a-61134e472dff"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "preferred_langcode": [
+        {
+            "value": "en"
+        }
+    ],
+    "name": [
+        {
+            "value": "admin"
+        }
+    ],
+    "mail": [
+        {
+            "value": "alex.bukach@gmail.com"
+        }
+    ],
+    "timezone": [
+        {
+            "value": "Africa\/Cairo"
+        }
+    ],
+    "status": [
+        {
+            "value": true
+        }
+    ],
+    "created": [
+        {
+            "value": "2020-10-03T18:29:57+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "changed": [
+        {
+            "value": "2020-10-03T19:33:05+00:00",
+            "lang": "en",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "access": [
+        {
+            "value": "2020-10-09T18:33:32+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "login": [
+        {
+            "value": "2020-10-03T19:33:05+00:00",
+            "format": "Y-m-d\\TH:i:sP"
+        }
+    ],
+    "init": [
+        {
+            "value": "alex.bukach@gmail.com"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": true,
+            "lang": "en"
+        }
+    ],
+    "path": [
+        {
+            "alias": null,
+            "pid": null,
+            "langcode": "en",
+            "lang": "en"
+        }
+    ],
+    "pass": [
+        {
+            "value": "$S$EathvLkJUd1Xl5pyCZ7ALSzzGpcj\/aIIsA7uSs7K5qosHzRQfCqD"
+        }
+    ]
+}
