@@ -1,0 +1,2436 @@
+(function ($, Drupal, drupalSettings) {
+
+Drupal.Nodejs = Drupal.Nodejs || {
+  'contentChannelNotificationCallbacks': {},
+  'presenceCallbacks': {},
+  'callbacks': {},
+  'socket': false,
+  'connectionSetupHandlers': {}
+};
+
+Drupal.behaviors.nodejs = {
+  attach: function () {
+    if (!Drupal.Nodejs.socket) {
+      Drupal.Nodejs.connect();
+    }
+  }
+};
+
+Drupal.Nodejs.runCallbacks = function (message) {
+  // It's possible that this message originated from an ajax request from the
+  // client associated with this socket.
+  if (Drupal.Nodejs.socket.sessionid && message.clientSocketId == Drupal.Nodejs.socket.sessionid) {
+    return;
+  }
+
+  if (message.callback) {
+    if (typeof message.callback == 'string') {
+      message.callback = [message.callback];
+    }
+    $.each(message.callback, function () {
+      var callback = this;
+      if (Drupal.Nodejs.callbacks[callback] && $.isFunction(Drupal.Nodejs.callbacks[callback].callback)) {
+        try {
+          Drupal.Nodejs.callbacks[callback].callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else if (message.presenceNotification != undefined) {
+    $.each(Drupal.Nodejs.presenceCallbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else if (message.contentChannelNotification != undefined) {
+    $.each(Drupal.Nodejs.contentChannelNotificationCallbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else {
+    $.each(Drupal.Nodejs.callbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+};
+
+Drupal.Nodejs.runSetupHandlers = function (type) {
+  $.each(Drupal.Nodejs.connectionSetupHandlers, function () {
+    if ($.isFunction(this[type])) {
+      try {
+        this[type]();
+      }
+      catch (exception) {}
+    }
+  });
+};
+
+Drupal.Nodejs.connect = function () {
+  var url = drupalSettings.nodejs.client.scheme + '://' + drupalSettings.nodejs.client.host + ':' + drupalSettings.nodejs.client.port;
+  drupalSettings.nodejs.connectTimeout = drupalSettings.nodejs.connectTimeout || 5000;
+  if (typeof io === 'undefined') {
+     return false;
+  }
+  Drupal.Nodejs.socket = io.connect(url, {
+    timeout: drupalSettings.nodejs.connectTimeout,
+    transports: drupalSettings.nodejs.client.transports,
+    path: drupalSettings.nodejs.client.path,
+  });
+  Drupal.Nodejs.socket.on('connect', function() {
+    Drupal.Nodejs.sendAuthMessage();
+    Drupal.Nodejs.runSetupHandlers('connect');
+    if (Drupal.ajax != undefined) {
+      // Monkey-patch Drupal.ajax.prototype.beforeSerialize to auto-magically
+      // send sessionId for AJAX requests so we can exclude the current browser
+      // window from resulting notifications. We do this so that modules can hook
+      // in to other modules ajax requests without having to patch them.
+      Drupal.Nodejs.originalBeforeSerialize = Drupal.ajax.prototype.beforeSerialize;
+      Drupal.ajax.prototype.beforeSerialize = function(element_settings, options) {
+        options.data['nodejs_client_socket_id'] = Drupal.Nodejs.socket.socket.sessionid;
+        return Drupal.Nodejs.originalBeforeSerialize(element_settings, options);
+      };
+    }
+  });
+
+  Drupal.Nodejs.socket.on('message', Drupal.Nodejs.runCallbacks);
+
+  Drupal.Nodejs.socket.on('disconnect', function() {
+    Drupal.Nodejs.runSetupHandlers('disconnect');
+    if (Drupal.ajax != undefined) {
+      Drupal.ajax.prototype.beforeSerialize = Drupal.Nodejs.originalBeforeSerialize;
+    }
+  });
+  setTimeout("Drupal.Nodejs.checkConnection()", drupalSettings.nodejs.connectTimeout + 250);
+};
+
+Drupal.Nodejs.checkConnection = function () {
+  if (!Drupal.Nodejs.socket.connected) {
+    Drupal.Nodejs.runSetupHandlers('connectionFailure');
+  }
+};
+
+Drupal.Nodejs.joinTokenChannel = function (channel, contentToken) {
+  var joinMessage = {
+    channel: channel,
+    contentToken: contentToken
+  };
+
+  // Add to the global settings so that the user is joined again when the client reconnects.
+  drupalSettings.nodejs.contentTokens = drupalSettings.nodejs.contentTokens || {};
+  drupalSettings.nodejs.contentTokens[channel] = contentToken;
+
+  Drupal.Nodejs.socket.emit('join-token-channel', joinMessage);
+};
+
+Drupal.Nodejs.sendAuthMessage = function () {
+  var authMessage = {
+    authToken: drupalSettings.nodejs.authToken,
+    contentTokens: drupalSettings.nodejs.contentTokens
+  };
+  Drupal.Nodejs.socket.emit('authenticate', authMessage);
+};
+
+})(jQuery, Drupal, drupalSettings);
+
+;
+(function ($, Drupal, drupalSettings) {
+
+  Drupal.Nodejs.callbacks.pdRequest = {
+    callback: function (message) {
+      $('.view-doc-requests, .view-user-requests').triggerHandler('RefreshView');
+    }
+  };
+
+})(jQuery, Drupal, drupalSettings);
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  Drupal.behaviors.permissions = {
+    attach: function attach(context) {
+      var self = this;
+      $('table#permissions').once('permissions').each(function () {
+        var $table = $(this);
+        var $ancestor = void 0;
+        var method = void 0;
+        if ($table.prev().length) {
+          $ancestor = $table.prev();
+          method = 'after';
+        } else {
+          $ancestor = $table.parent();
+          method = 'append';
+        }
+        $table.detach();
+
+        var $dummy = $(Drupal.theme('checkbox')).removeClass('form-checkbox').addClass('dummy-checkbox js-dummy-checkbox').attr('disabled', 'disabled').attr('checked', 'checked').attr('title', Drupal.t('This permission is inherited from the authenticated user role.')).hide();
+
+        $table.find('input[type="checkbox"]').not('.js-rid-anonymous, .js-rid-authenticated').addClass('real-checkbox js-real-checkbox').after($dummy);
+
+        $table.find('input[type=checkbox].js-rid-authenticated').on('click.permissions', self.toggle).each(self.toggle);
+
+        $ancestor[method]($table);
+      });
+    },
+    toggle: function toggle() {
+      var authCheckbox = this;
+      var $row = $(this).closest('tr');
+
+      $row.find('.js-real-checkbox').each(function () {
+        this.style.display = authCheckbox.checked ? 'none' : '';
+      });
+      $row.find('.js-dummy-checkbox').each(function () {
+        this.style.display = authCheckbox.checked ? '' : 'none';
+      });
+    }
+  };
+})(jQuery, Drupal);;
+/*! js-cookie v3.0.0-rc.0 | MIT */
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self,function(){var r=e.Cookies,n=e.Cookies=t();n.noConflict=function(){return e.Cookies=r,n}}())}(this,function(){"use strict";function e(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)e[n]=r[n]}return e}var t={read:function(e){return e.replace(/%3B/g,";")},write:function(e){return e.replace(/;/g,"%3B")}};return function r(n,i){function o(r,o,u){if("undefined"!=typeof document){"number"==typeof(u=e({},i,u)).expires&&(u.expires=new Date(Date.now()+864e5*u.expires)),u.expires&&(u.expires=u.expires.toUTCString()),r=t.write(r).replace(/=/g,"%3D"),o=n.write(String(o),r);var c="";for(var f in u)u[f]&&(c+="; "+f,!0!==u[f]&&(c+="="+u[f].split(";")[0]));return document.cookie=r+"="+o+c}}return Object.create({set:o,get:function(e){if("undefined"!=typeof document&&(!arguments.length||e)){for(var r=document.cookie?document.cookie.split("; "):[],i={},o=0;o<r.length;o++){var u=r[o].split("="),c=u.slice(1).join("="),f=t.read(u[0]).replace(/%3D/g,"=");if(i[f]=n.read(c,f),e===f)break}return e?i[e]:i}},remove:function(t,r){o(t,"",e({},r,{expires:-1}))},withAttributes:function(t){return r(this.converter,e({},this.attributes,t))},withConverter:function(t){return r(e({},this.converter,t),this.attributes)}},{attributes:{value:Object.freeze(i)},converter:{value:Object.freeze(n)}})}(t,{path:"/"})});
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, cookies) {
+  var isFunction = function isFunction(obj) {
+    return Object.prototype.toString.call(obj) === '[object Function]';
+  };
+
+  var parseCookieValue = function parseCookieValue(value, parseJson) {
+    if (value.indexOf('"') === 0) {
+      value = value.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    }
+
+    try {
+      value = decodeURIComponent(value.replace(/\+/g, ' '));
+      return parseJson ? JSON.parse(value) : value;
+    } catch (e) {}
+  };
+
+  var reader = function reader(cookieValue, cookieName, converter, readUnsanitized, parseJson) {
+    var value = readUnsanitized ? cookieValue : parseCookieValue(cookieValue, parseJson);
+
+    if (converter !== undefined && isFunction(converter)) {
+      return converter(value, cookieName);
+    }
+
+    return value;
+  };
+
+  $.cookie = function (key) {
+    var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+
+    key = key && !$.cookie.raw ? encodeURIComponent(key) : key;
+    if (value !== undefined && !isFunction(value)) {
+      var attributes = Object.assign({}, $.cookie.defaults, options);
+
+      if (typeof attributes.expires === 'string' && attributes.expires !== '') {
+        attributes.expires = new Date(attributes.expires);
+      }
+
+      var cookieSetter = cookies.withConverter({
+        write: function write(cookieValue) {
+          return encodeURIComponent(cookieValue);
+        }
+      });
+
+      value = $.cookie.json && !$.cookie.raw ? JSON.stringify(value) : String(value);
+
+      return cookieSetter.set(key, value, attributes);
+    }
+
+    var userProvidedConverter = value;
+    var cookiesShim = cookies.withConverter({
+      read: function read(cookieValue, cookieName) {
+        return reader(cookieValue, cookieName, userProvidedConverter, $.cookie.raw, $.cookie.json);
+      }
+    });
+
+    if (key !== undefined) {
+      return cookiesShim.get(key);
+    }
+
+    var results = cookiesShim.get();
+    Object.keys(results).forEach(function (resultKey) {
+      if (results[resultKey] === undefined) {
+        delete results[resultKey];
+      }
+    });
+
+    return results;
+  };
+
+  $.cookie.defaults = Object.assign({ path: '' }, cookies.defaults);
+
+  $.cookie.json = false;
+
+  $.cookie.raw = false;
+
+  $.removeCookie = function (key, options) {
+    cookies.remove(key, Object.assign({}, $.cookie.defaults, options));
+    return !cookies.get(key);
+  };
+})(jQuery, Drupal, window.Cookies);;
+/**
+ * @file
+ * JS functionality that creates dynamic CSS which hides permission rows and role columns.
+ */
+
+// Wrapper normalizes 'jQuery' to '$'.
+;(function fpa_scope($, Drupal, window, document) {
+  "use strict";
+  
+  var Fpa = function (context, settings) {
+    this.init(context, settings);
+    
+    return this;
+  };
+  
+  Fpa.prototype.selector = {
+    form: '#user-admin-permissions',
+    table : '#permissions'
+  };
+  
+  Fpa.prototype.init = function (context, settings) {
+    
+    this.drupal_html_class_cache = {};
+    
+    this.dom = {};
+    
+    this.attr = settings.attr;
+    
+    this.filter_timeout= null;
+    this.filter_timeout_time = 0;
+    
+    this.module_match = '*=';
+    
+    this.filter_selector_cache = {
+      '*=': {},
+      '~=': {}
+    };
+    
+    this.selector.table_base_selector = '.fpa-table-wrapper tr[' + this.attr.module + ']';
+    this.selector.list_counter_selector = '.fpa-perm-counter';
+    this.selector.list_base_selector = '.fpa-left-section li[' + this.attr.module + ']';
+    
+    if (this.select(context)) {
+      
+      this.prepare();
+      
+      this.authenticated_role_behavior();
+    }
+  };
+  
+  Fpa.prototype.styles = {
+    module_active_style: '{margin-right:-1px; background-color: white; border-right: solid 1px transparent;}'
+  };
+  
+  /**
+   * Select all elements that are used by FPA ahead of time and cache on 'Fpa' instance.
+   */
+  Fpa.prototype.select = function (context) {
+    
+    this.dom.context = $(context);
+    
+    this.dom.form = this.dom.context.find(this.selector.form);
+    
+    // Prevent anything else from running if the form is not found.
+    if (this.dom.form.length === 0) {
+      return false;
+    }
+    
+    this.dom.container = this.dom.form.find('.fpa-container');
+    
+    // Raw element since $().html(); does not work for <style /> elements.
+    this.dom.perm_style = this.dom.container.find('.fpa-perm-styles style').get(0);
+    this.dom.role_style = this.dom.container.find('.fpa-role-styles style').get(0);
+    
+    this.dom.section_left = this.dom.container.find('.fpa-left-section');
+    this.dom.section_right = this.dom.container.find('.fpa-right-section');
+    
+    this.dom.table_wrapper = this.dom.section_right.find('.fpa-table-wrapper');
+    this.dom.table = this.dom.table_wrapper.find(this.selector.table);
+    
+    this.dom.module_list = this.dom.section_left.find('ul');
+    
+    this.dom.filter_form = this.dom.container.find('.fpa-filter-form');
+    
+    this.dom.filter = this.dom.filter_form.find('input[type="text"]');
+    this.dom.role_select = this.dom.filter_form.find('select');
+    this.dom.checked_status = this.dom.filter_form.find('input[type="checkbox"]');
+    
+    return true;
+  };
+  
+  /**
+   * Prepares a string for use as a CSS identifier (element, class, or ID name).
+   * 
+   * @see https://api.drupal.org/api/drupal/includes!common.inc/function/drupal_clean_css_identifier/7
+   */
+  Fpa.prototype.drupal_clean_css_identifier = function (str) {
+    
+    return str
+    // replace ' ', '_', '/', '[' with '-'
+    .replace(/[ _\/\[]/g, '-')
+    // replace ']' with ''
+    .replace(/\]/g, '')
+    // Valid characters in a CSS identifier are:
+    // - the hyphen (U+002D)
+    // - a-z (U+0030 - U+0039)
+    // - A-Z (U+0041 - U+005A)
+    // - the underscore (U+005F)
+    // - 0-9 (U+0061 - U+007A)
+    // - ISO 10646 characters U+00A1 and higher
+    // We strip out any character not in the above list.
+    .replace(/[^\u002D\u0030-\u0039\u0041-\u005A\u005F\u0061-\u007A\u00A1-\uFFFF]/, '');
+  };
+  
+  /**
+   * Prepares a string for use as a valid class name.
+   * 
+   * @see https://api.drupal.org/api/drupal/includes!common.inc/function/drupal_html_class/7
+   */
+  Fpa.prototype.drupal_html_class = function (str) {
+    
+    if (this.drupal_html_class_cache[str] === undefined) {
+      this.drupal_html_class_cache[str] = this.drupal_clean_css_identifier(str.toLowerCase());
+    }
+    
+    return this.drupal_html_class_cache[str];
+  };
+  
+  /**
+   * Handles applying styles to <style /> tags.
+   */
+  Fpa.prototype.set_style = (function () {
+    
+    // Feature detection. Mainly for IE8.
+    if ($('<style type="text/css" />').get(0).styleSheet) {
+      return function (element, styles) {
+        
+        element.styleSheet.cssText = styles;
+      };
+    }
+    
+    // Default that works in modern browsers.
+    return function (element, styles) {
+      element.innerHTML = styles;
+    };
+  })();
+  
+  /**
+   * Callback for click events on module list.
+   */
+  Fpa.prototype.filter_module = function (e) {
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    var $this = $(e.currentTarget);
+    
+    this.dom.filter.val([
+      
+      // remove current module filter string.
+      this.dom.filter.val().replace(/(@.*)/, ''),
+      
+      // remove trailing @ as that means no module; clean 'All' filter value
+      ($this.attr(this.attr.module) !== undefined && $this.attr(this.attr.module) !== '') ? '@' + $this.find('a[href]').text() : ''
+      
+    ].join('')); 
+    
+    /**
+     * ~= matches exactly one whitespace separated word in attribute.
+     * 
+     * @see http://www.w3.org/TR/CSS2/selector.html#matching-attrs
+     */
+    this.module_match = '~=';
+    
+    this.filter();
+  };
+  
+  Fpa.prototype.build_filter_selectors = function (filter_string) {
+    
+    // Extracts 'permissions@module', trimming leading and trailing whitespace.
+    var matches = filter_string.match(/^\s*([^@]*)@?(.*?)\s*$/i);
+    
+    matches.shift(); // Remove whole match item.
+    
+    var safe_matches = $.map(matches, $.proxy(this.drupal_html_class, this));
+    
+    this.filter_selector_cache[this.module_match][filter_string] = [
+      safe_matches[0].length > 0 ? '[' + this.attr.permission          + '*="' + safe_matches[0] + '"]' : '',
+      safe_matches[1].length > 0 ? '[' + this.attr.module + this.module_match + '"' + safe_matches[1] + '"]' : ''
+    ];
+    
+    return this.filter_selector_cache[this.module_match][filter_string];
+  };
+  
+  Fpa.prototype.get_filter_selectors = function (filter_string) {
+    
+    filter_string = filter_string || this.dom.filter.val();
+    
+    return this.filter_selector_cache[this.module_match][filter_string] || this.build_filter_selectors(filter_string);
+  };
+  
+  Fpa.prototype.permission_grid_styles = function (filters) {
+    
+    filters = filters || this.get_filter_selectors();
+    
+    var checked_filters = this.build_checked_selectors();
+    
+    var styles = [
+      this.selector.table_base_selector,
+      '{display: none;}'
+    ];
+    
+    for (var i = 0; i < checked_filters.length; i++) {
+      
+      styles = styles.concat([
+        this.selector.table_base_selector,
+        
+        checked_filters[i],
+        
+        filters[0],
+        filters[1],
+        '{display: table-row;}'
+      ]);
+    }
+    
+    return styles.join('');
+    
+  };
+  
+  Fpa.prototype.counter_styles = function (filters) {
+    
+    filters = filters || this.get_filter_selectors();
+    
+    return [
+      this.selector.list_counter_selector,
+      '{display: none;}',
+      
+      this.selector.list_counter_selector,
+      filters[0],
+      '{display: inline;}'
+    ].join('');
+    
+  };
+  
+  Fpa.prototype.module_list_styles = function (filters) {
+    
+    filters = filters || this.get_filter_selectors();
+    
+    return [ 
+      this.selector.list_base_selector,
+      (filters[1].length > 0 ? filters[1] : '[' + this.attr.module + '=""]'),
+      this.styles.module_active_style
+    ].join('');
+    
+  };
+  
+  Fpa.prototype.filter = function () {
+    
+    var perm = this.dom.filter.val();
+    
+    $.cookie('fpa_filter', perm, {path: '/'});
+    $.cookie('fpa_module_match', this.module_match, {path: '/'});
+          
+    this.save_filters();
+    
+    var filter_selector = this.get_filter_selectors(perm);
+    
+    this.set_style(this.dom.perm_style, [
+      
+      this.permission_grid_styles(filter_selector),
+      
+      this.counter_styles(filter_selector),
+      
+      this.module_list_styles(filter_selector)
+      
+    ].join(''));
+  };
+  
+  Fpa.prototype.build_role_selectors = function (roles) {
+    
+    roles = roles || this.dom.role_select.val();
+    
+    var selectors = ['*'];
+    
+    if ($.inArray('*', roles) === -1) {
+      
+      selectors = $.map(roles, $.proxy(function (value, index) {
+        
+        return '[' + this.attr.role + '="' + value + '"]';
+        
+      }, this));
+    }
+    
+    return selectors;
+  };
+  
+  Fpa.prototype.build_checked_selectors = function (roles) {
+    
+    roles = roles || this.dom.role_select.val();
+    
+    var checked_boxes = $.map(this.dom.checked_status, function (element, index) {
+      return element.checked ? $(element).val() : null;
+    });
+    
+    var selectors = [''];
+    
+    if ($.inArray('*', roles) !== -1) {
+      roles = $.map(this.dom.role_select.find('option').not('[value="*"]'), $.proxy(function (element, index) {
+        
+        return $(element).attr('value');
+        
+      }, this));
+    }
+    
+    if (checked_boxes.length != this.dom.checked_status.length) {
+      
+      selectors = $.map(roles, $.proxy(function (value, index) {
+        
+        return $.map(checked_boxes, $.proxy(function (checked_attr, index) {
+          
+          return '[' + checked_attr + '~="' + value + '"]';
+          
+        }, this));
+        
+      }, this));
+    }
+    
+    return selectors;
+  };
+  
+  // Even handler for role selection.
+  Fpa.prototype.filter_roles = function () {
+    
+    this.save_filters();
+    
+    var values = this.dom.role_select.val() || [];
+    var role_style_code = [];
+    
+    $.cookie('fpa_roles', JSON.stringify(values), {path: '/'});
+    
+    // Only filter if "All Roles" is not selected.
+    if ($.inArray('*', values) === -1) {
+      
+      role_style_code.push('.fpa-table-wrapper [' + this.attr.role + '] {display: none;}');
+      
+      if (values.length > 0) {
+        
+        var role_selectors = this.build_role_selectors(values);
+        
+        role_style_code = role_style_code.concat($.map(role_selectors, $.proxy(function (value, index) {
+          
+          return '.fpa-table-wrapper ' + value + ' {display: table-cell;}';
+          
+        }, this)));
+        
+        // Ensure right border on last visible role.
+        role_style_code.push('.fpa-table-wrapper ' + role_selectors.pop() + ' {border-right: 1px solid #bebfb9;}');
+      }
+      else {
+        role_style_code.push('td[class="permission"] {border-right: 1px solid #bebfb9;}');
+      }
+      
+    }
+    
+    this.set_style(this.dom.role_style, role_style_code.join(''));
+    
+    this.filter();
+  };
+  
+  /**
+   * Prevent the current filter from being cleared on form reset.
+   */
+  Fpa.prototype.save_filters = function () {
+    
+    /**
+     * element.defaultValue is what 'text' elements reset to.
+     * 
+     * @link http://www.w3.org/TR/REC-DOM-Level-1/level-one-html.html#ID-26091157
+     */
+    this.dom.filter.get(0).defaultValue = this.dom.filter.val();
+    
+    /**
+     * element.defaultSelected is what 'option' elements reset to.
+     * 
+     * @see http://www.w3.org/TR/REC-DOM-Level-1/level-one-html.html#ID-37770574
+     */
+    this.dom.role_select.find('option').each(function (index, element) {
+      element.defaultSelected = element.selected;
+    });
+    
+    /**
+     * element.defaultChecked is what 'checkbox' elements reset to.
+     * 
+     * @see http://www.w3.org/TR/REC-DOM-Level-1/level-one-html.html#ID-20509171
+     */
+    this.dom.checked_status.each(function (index, element) {
+      element.defaultChecked = element.checked;
+    });
+  };
+  
+  Fpa.prototype.prepare = function () {
+    
+    this.filter_timeout_time = Math.min(this.dom.table.find('tr').length, 200);
+    
+    this.dom.form
+      .delegate('.fpa-toggle-container a', 'click', $.proxy(function fpa_toggle(e) {
+        e.preventDefault();
+        
+        var toggle_class = $(e.currentTarget).attr('fpa-toggle-class');
+        
+        this.dom.container.toggleClass(toggle_class).hasClass(toggle_class);
+        
+      }, this))
+    ;
+    
+    this.dom.section_left
+      .delegate('li', 'click', $.proxy(this.filter_module, this))
+    ;
+    
+    this.dom.filter
+      // Prevent Enter/Return from submitting form.
+      .keypress(function fpa_prevent_form_submission(e) {
+        if (e.which === 13) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      })
+      // Prevent non-character keys from triggering filter.
+      .keyup($.proxy(function fpa_filter_keyup(e) {
+        
+        // Prevent ['Enter', 'Shift', 'Ctrl', 'Alt'] from triggering filter.
+        if ($.inArray(e.which, [13, 16, 17, 18]) === -1) {
+          
+          window.clearTimeout(this.filter_timeout);
+          
+          this.filter_timeout = window.setTimeout($.proxy(function () {
+            
+            this.dom.table_wrapper
+              .detach()
+              .each($.proxy(function (index, element) {
+                
+                this.module_match = '*=';
+                
+                this.filter();
+              }, this))
+              .appendTo(this.dom.section_right)
+            ;
+            
+          }, this), this.filter_timeout_time);
+        }
+      }, this))
+    ;
+    
+    // Handle links to sections on permission admin page.
+    this.dom.form
+      .delegate('a[href*="admin/people/permissions#"]', 'click', $.proxy(function fpa_inter_page_links_click(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        this.dom.module_list
+          .find('li[' + this.attr.module + '~="' + this.drupal_html_class(e.currentTarget.hash.substring(8)) + '"]')
+          .click()
+        ;
+        
+        $('body').scrollTop(this.dom.container.position().top);
+      }, this))
+    ;
+    
+    // Handler for links that use #hash and can't be capture server side.
+    if(window.location.hash.indexOf('module-') === 1) {
+      
+      this.dom.module_list
+        .find('li[' + this.attr.module + '~="' + this.drupal_html_class(window.location.hash.substring(8)) + '"]')
+        .click()
+      ;
+    }
+    
+    /**
+     * Reset authenticated role behavior when form resets.
+     * 
+     * @todo should this be synchronous? Would have to trigger reset on elements while detached.
+     */
+    this.dom.form.bind('reset', $.proxy(function fpa_form_reset(e) {
+      
+      // Wait till after the form elements have been reset.
+      window.setTimeout($.proxy(function fpa_fix_authenticated_behavior() {
+        
+        this.dom.table_wrapper
+          .detach() // Don't make numerous changes while elements are in the rendered DOM.
+          .each($.proxy(function (index, element) {
+            
+            $(element)
+              .find('input[type="checkbox"].rid-2')
+              .each(this.dummy_checkbox_behavior)
+            ;
+          }, this))
+          .appendTo(this.dom.section_right)
+        ;
+        
+      }, this), 0);
+    }, this));
+    
+    
+    // Role checkboxes toggle all visible permissions for this column.
+    this.dom.section_right
+      .delegate('th[' + this.attr.role + '] input[type="checkbox"].fpa-checkboxes-toggle', 'change', $.proxy(function fpa_role_permissions_toggle(e) {
+        
+        var $this = $(e.currentTarget);
+        
+        // Get visible rows selectors.
+        var filters = this.get_filter_selectors(this.dom.filter.val());
+        
+        this.dom.table_wrapper
+          .detach()
+          .each($.proxy(function (index, element) {
+            
+            var rid = $this.closest('[' + this.attr.role + ']').attr(this.attr.role);
+            
+            $(element)
+              .find([
+                'tr' + filters.join(''),
+                'td.checkbox[' + this.attr.role + '="' + rid + '"]',
+                'input[type="checkbox"][name]'
+              ].join(' ')) // Array is easier to read, separated for descendant selectors.
+              
+              .attr('checked', $this.attr('checked'))
+              
+              .filter('.rid-2') // Following only applies to "Authenticated User" role.
+              .each(this.dummy_checkbox_behavior)
+            ;
+          }, this))
+          .appendTo(this.dom.section_right)
+        ;
+        
+      }, this))
+    ;
+    
+    // Permission checkboxes toggle all visible permissions for this row.
+    this.dom.section_right
+      .delegate('td.permission input[type="checkbox"].fpa-checkboxes-toggle', 'change', $.proxy(function fpa_role_permissions_toggle(e) {
+        
+        // Get visible rows selectors.
+        
+        var $row = $(e.currentTarget).closest('tr');
+        
+        $row.prev('tr').after(
+          
+          $row
+          .detach()
+          .each($.proxy(function (index, element) {
+            
+            $(element)
+              .find('td.checkbox')
+              .filter(this.build_role_selectors().join(','))
+              .find('input[type="checkbox"][name]')
+              
+              .attr('checked', e.currentTarget.checked)
+              
+              .filter('.rid-2') // Following only applies to "Authenticated User" role.
+              .each(this.dummy_checkbox_behavior)
+            ;
+            
+          }, this))
+        );
+        
+      }, this))
+    ;
+    
+    // Clear contents of search field and reset visible permissions.
+    this.dom.section_right
+      .delegate('.fpa-clear-search', 'click', $.proxy(function (e) {
+        
+        this.dom.filter
+          .val('')
+        ;
+        
+        this.filter();
+      }, this))
+    ;
+    
+    // Change visible roles.
+    this.dom.role_select
+      .bind('change blur', $.proxy(this.filter_roles, this))
+    ;
+    
+    this.dom.checked_status
+      .bind('change', $.proxy(function (e) {
+        
+        this.save_filters();
+        
+        this.filter();
+        
+      }, this))
+    ;
+
+    /**
+     * System name is not normally selectable because its a pseudo-element.
+     *
+     * This detects clicks directly on the TR, which happens when a click is on
+     * the pseudo-element, and displays a prompt() with the system name as the
+     * pre-populated value.
+     */
+    this.dom.table
+      .delegate('tr[' + this.attr.system_name + ']', 'click', $.proxy(function (e) {
+        var $target = $(e.target);
+
+        if ($target.is('tr[' + this.attr.system_name + ']')) {
+
+          window.prompt('You can grab the system name here', $target.attr(this.attr.system_name));
+        }
+      }, this))
+    ;
+    
+    // Focus on element takes long time, bump after normal execution.
+    window.setTimeout($.proxy(function fpa_filter_focus() {
+      this.dom.filter.focus();
+    }, this), 0);
+    
+  };
+  
+  /**
+   * Event handler/iterator.
+   * 
+   * Should not be $.proxy()'d.
+   */
+  Fpa.prototype.dummy_checkbox_behavior = function () {
+    // 'this' refers to the element, not the 'Fpa' instance.
+    $(this).closest('tr').toggleClass('fpa-authenticated-role-behavior', this.checked);
+  };
+  
+  Fpa.prototype.authenticated_role_behavior = function () {
+    
+    this.dom.table_wrapper
+      .delegate('input[type=checkbox].rid-2', 'mousedown', function (e) {
+        
+        $(e.currentTarget).unbind('click.permissions');
+      })
+      .delegate('input[type=checkbox].rid-2', 'change.fpa_authenticated_role', this.dummy_checkbox_behavior)
+    ;
+  };
+  
+  Drupal.behaviors.fpa = {
+    attach: function (context, settings) {
+      
+      // Add touch-screen styling for checkboxes to make easier to use.
+      if (document.documentElement.ontouchstart !== undefined) {
+        $(document.body).addClass('fpa-mobile');
+      }
+      
+      // Fix table sticky table headers width due to changes in visible roles.
+      $(window)
+        .bind('scroll', function fpa_fix_tableheader(e) {
+          $(e.currentTarget).triggerHandler('resize.drupal-tableheader');
+        })
+      ;
+
+      console.log('fpa');
+      new Fpa(context, settings.fpa);
+    }
+  };
+  
+  // Override Drupal core's Authenticated role checkbox behavior.
+  Drupal.behaviors.permissions.attach = $.noop;
+  
+  // Drupal.behaviors.formUpdated.attach = $.noop;
+})(jQuery, Drupal, window, document);
+;
+window.matchMedia||(window.matchMedia=function(){"use strict";var e=window.styleMedia||window.media;if(!e){var t=document.createElement("style"),i=document.getElementsByTagName("script")[0],n=null;t.type="text/css";t.id="matchmediajs-test";i.parentNode.insertBefore(t,i);n="getComputedStyle"in window&&window.getComputedStyle(t,null)||t.currentStyle;e={matchMedium:function(e){var i="@media "+e+"{ #matchmediajs-test { width: 1px; } }";if(t.styleSheet){t.styleSheet.cssText=i}else{t.textContent=i}return n.width==="1px"}}}return function(t){return{matches:e.matchMedium(t||"all"),media:t||"all"}}}());
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+Drupal.debounce = function (func, wait, immediate) {
+  var timeout = void 0;
+  var result = void 0;
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var context = this;
+    var later = function later() {
+      timeout = null;
+      if (!immediate) {
+        result = func.apply(context, args);
+      }
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) {
+      result = func.apply(context, args);
+    }
+    return result;
+  };
+};;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  function init(i, tab) {
+    var $tab = $(tab);
+    var $target = $tab.find('[data-drupal-nav-tabs-target]');
+    var isCollapsible = $tab.hasClass('is-collapsible');
+
+    function openMenu(e) {
+      $target.toggleClass('is-open');
+    }
+
+    function handleResize(e) {
+      $tab.addClass('is-horizontal');
+      var $tabs = $tab.find('.tabs');
+      var isHorizontal = $tabs.outerHeight() <= $tabs.find('.tabs__tab').outerHeight();
+      $tab.toggleClass('is-horizontal', isHorizontal);
+      if (isCollapsible) {
+        $tab.toggleClass('is-collapse-enabled', !isHorizontal);
+      }
+      if (isHorizontal) {
+        $target.removeClass('is-open');
+      }
+    }
+
+    $tab.addClass('position-container is-horizontal-enabled');
+
+    $tab.on('click.tabs', '[data-drupal-nav-tabs-trigger]', openMenu);
+    $(window).on('resize.tabs', Drupal.debounce(handleResize, 150)).trigger('resize.tabs');
+  }
+
+  Drupal.behaviors.navTabs = {
+    attach: function attach(context, settings) {
+      var $tabs = $(context).find('[data-drupal-nav-tabs]');
+      if ($tabs.length) {
+        var notSmartPhone = window.matchMedia('(min-width: 300px)');
+        if (notSmartPhone.matches) {
+          $tabs.once('nav-tabs').each(init);
+        }
+      }
+    }
+  };
+})(jQuery, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, debounce) {
+  var liveElement = void 0;
+  var announcements = [];
+
+  Drupal.behaviors.drupalAnnounce = {
+    attach: function attach(context) {
+      if (!liveElement) {
+        liveElement = document.createElement('div');
+        liveElement.id = 'drupal-live-announce';
+        liveElement.className = 'visually-hidden';
+        liveElement.setAttribute('aria-live', 'polite');
+        liveElement.setAttribute('aria-busy', 'false');
+        document.body.appendChild(liveElement);
+      }
+    }
+  };
+
+  function announce() {
+    var text = [];
+    var priority = 'polite';
+    var announcement = void 0;
+
+    var il = announcements.length;
+    for (var i = 0; i < il; i++) {
+      announcement = announcements.pop();
+      text.unshift(announcement.text);
+
+      if (announcement.priority === 'assertive') {
+        priority = 'assertive';
+      }
+    }
+
+    if (text.length) {
+      liveElement.innerHTML = '';
+
+      liveElement.setAttribute('aria-busy', 'true');
+
+      liveElement.setAttribute('aria-live', priority);
+
+      liveElement.innerHTML = text.join('\n');
+
+      liveElement.setAttribute('aria-busy', 'false');
+    }
+  }
+
+  Drupal.announce = function (text, priority) {
+    announcements.push({
+      text: text,
+      priority: priority
+    });
+
+    return debounce(announce, 200)();
+  };
+})(Drupal, Drupal.debounce);;
+(function(){if(window.matchMedia&&window.matchMedia("all").addListener){return false}var e=window.matchMedia,i=e("only all").matches,n=false,t=0,a=[],r=function(i){clearTimeout(t);t=setTimeout(function(){for(var i=0,n=a.length;i<n;i++){var t=a[i].mql,r=a[i].listeners||[],o=e(t.media).matches;if(o!==t.matches){t.matches=o;for(var s=0,l=r.length;s<l;s++){r[s].call(window,t)}}}},30)};window.matchMedia=function(t){var o=e(t),s=[],l=0;o.addListener=function(e){if(!i){return}if(!n){n=true;window.addEventListener("resize",r,true)}if(l===0){l=a.push({mql:o,listeners:s})}s.push(e)};o.removeListener=function(e){for(var i=0,n=s.length;i<n;i++){if(s[i]===e){s.splice(i,1)}}};return o}})();
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, debounce) {
+  var offsets = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  };
+
+  function getRawOffset(el, edge) {
+    var $el = $(el);
+    var documentElement = document.documentElement;
+    var displacement = 0;
+    var horizontal = edge === 'left' || edge === 'right';
+
+    var placement = $el.offset()[horizontal ? 'left' : 'top'];
+
+    placement -= window['scroll' + (horizontal ? 'X' : 'Y')] || document.documentElement['scroll' + (horizontal ? 'Left' : 'Top')] || 0;
+
+    switch (edge) {
+      case 'top':
+        displacement = placement + $el.outerHeight();
+        break;
+
+      case 'left':
+        displacement = placement + $el.outerWidth();
+        break;
+
+      case 'bottom':
+        displacement = documentElement.clientHeight - placement;
+        break;
+
+      case 'right':
+        displacement = documentElement.clientWidth - placement;
+        break;
+
+      default:
+        displacement = 0;
+    }
+    return displacement;
+  }
+
+  function calculateOffset(edge) {
+    var edgeOffset = 0;
+    var displacingElements = document.querySelectorAll('[data-offset-' + edge + ']');
+    var n = displacingElements.length;
+    for (var i = 0; i < n; i++) {
+      var el = displacingElements[i];
+
+      if (el.style.display === 'none') {
+        continue;
+      }
+
+      var displacement = parseInt(el.getAttribute('data-offset-' + edge), 10);
+
+      if (isNaN(displacement)) {
+        displacement = getRawOffset(el, edge);
+      }
+
+      edgeOffset = Math.max(edgeOffset, displacement);
+    }
+
+    return edgeOffset;
+  }
+
+  function calculateOffsets() {
+    return {
+      top: calculateOffset('top'),
+      right: calculateOffset('right'),
+      bottom: calculateOffset('bottom'),
+      left: calculateOffset('left')
+    };
+  }
+
+  function displace(broadcast) {
+    offsets = calculateOffsets();
+    Drupal.displace.offsets = offsets;
+    if (typeof broadcast === 'undefined' || broadcast) {
+      $(document).trigger('drupalViewportOffsetChange', offsets);
+    }
+    return offsets;
+  }
+
+  Drupal.behaviors.drupalDisplace = {
+    attach: function attach() {
+      if (this.displaceProcessed) {
+        return;
+      }
+      this.displaceProcessed = true;
+
+      $(window).on('resize.drupalDisplace', debounce(displace, 200));
+    }
+  };
+
+  Drupal.displace = displace;
+  $.extend(Drupal.displace, {
+    offsets: offsets,
+
+    calculateOffset: calculateOffset
+  });
+})(jQuery, Drupal, Drupal.debounce);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var activeItem = Drupal.url(drupalSettings.path.currentPath);
+
+  $.fn.drupalToolbarMenu = function () {
+    var ui = {
+      handleOpen: Drupal.t('Extend'),
+      handleClose: Drupal.t('Collapse')
+    };
+
+    function toggleList($item, switcher) {
+      var $toggle = $item.children('.toolbar-box').children('.toolbar-handle');
+      switcher = typeof switcher !== 'undefined' ? switcher : !$item.hasClass('open');
+
+      $item.toggleClass('open', switcher);
+
+      $toggle.toggleClass('open', switcher);
+
+      $toggle.find('.action').text(switcher ? ui.handleClose : ui.handleOpen);
+    }
+
+    function toggleClickHandler(event) {
+      var $toggle = $(event.target);
+      var $item = $toggle.closest('li');
+
+      toggleList($item);
+
+      var $openItems = $item.siblings().filter('.open');
+      toggleList($openItems, false);
+    }
+
+    function linkClickHandler(event) {
+      if (!Drupal.toolbar.models.toolbarModel.get('isFixed')) {
+        Drupal.toolbar.models.toolbarModel.set('activeTab', null);
+      }
+
+      event.stopPropagation();
+    }
+
+    function initItems($menu) {
+      var options = {
+        class: 'toolbar-icon toolbar-handle',
+        action: ui.handleOpen,
+        text: ''
+      };
+
+      $menu.find('li > a').wrap('<div class="toolbar-box">');
+
+      $menu.find('li').each(function (index, element) {
+        var $item = $(element);
+        if ($item.children('ul.toolbar-menu').length) {
+          var $box = $item.children('.toolbar-box');
+          options.text = Drupal.t('@label', {
+            '@label': $box.find('a').text()
+          });
+          $item.children('.toolbar-box').append(Drupal.theme('toolbarMenuItemToggle', options));
+        }
+      });
+    }
+
+    function markListLevels($lists, level) {
+      level = !level ? 1 : level;
+      var $lis = $lists.children('li').addClass('level-' + level);
+      $lists = $lis.children('ul');
+      if ($lists.length) {
+        markListLevels($lists, level + 1);
+      }
+    }
+
+    function openActiveItem($menu) {
+      var pathItem = $menu.find('a[href="' + window.location.pathname + '"]');
+      if (pathItem.length && !activeItem) {
+        activeItem = window.location.pathname;
+      }
+      if (activeItem) {
+        var $activeItem = $menu.find('a[href="' + activeItem + '"]').addClass('menu-item--active');
+        var $activeTrail = $activeItem.parentsUntil('.root', 'li').addClass('menu-item--active-trail');
+        toggleList($activeTrail, true);
+      }
+    }
+
+    return this.each(function (selector) {
+      var $menu = $(this).once('toolbar-menu');
+      if ($menu.length) {
+        $menu.on('click.toolbar', '.toolbar-box', toggleClickHandler).on('click.toolbar', '.toolbar-box a', linkClickHandler);
+
+        $menu.addClass('root');
+        initItems($menu);
+        markListLevels($menu);
+
+        openActiveItem($menu);
+      }
+    });
+  };
+
+  Drupal.theme.toolbarMenuItemToggle = function (options) {
+    return '<button class="' + options.class + '"><span class="action">' + options.action + '</span> <span class="label">' + options.text + '</span></button>';
+  };
+})(jQuery, Drupal, drupalSettings);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var options = $.extend({
+    breakpoints: {
+      'toolbar.narrow': '',
+      'toolbar.standard': '',
+      'toolbar.wide': ''
+    }
+  }, drupalSettings.toolbar, {
+    strings: {
+      horizontal: Drupal.t('Horizontal orientation'),
+      vertical: Drupal.t('Vertical orientation')
+    }
+  });
+
+  Drupal.behaviors.toolbar = {
+    attach: function attach(context) {
+      if (!window.matchMedia('only screen').matches) {
+        return;
+      }
+
+      $(context).find('#toolbar-administration').once('toolbar').each(function () {
+        var model = new Drupal.toolbar.ToolbarModel({
+          locked: JSON.parse(localStorage.getItem('Drupal.toolbar.trayVerticalLocked')),
+          activeTab: document.getElementById(JSON.parse(localStorage.getItem('Drupal.toolbar.activeTabID'))),
+          height: $('#toolbar-administration').outerHeight()
+        });
+
+        Drupal.toolbar.models.toolbarModel = model;
+
+        Object.keys(options.breakpoints).forEach(function (label) {
+          var mq = options.breakpoints[label];
+          var mql = window.matchMedia(mq);
+          Drupal.toolbar.mql[label] = mql;
+
+          mql.addListener(Drupal.toolbar.mediaQueryChangeHandler.bind(null, model, label));
+
+          Drupal.toolbar.mediaQueryChangeHandler.call(null, model, label, mql);
+        });
+
+        Drupal.toolbar.views.toolbarVisualView = new Drupal.toolbar.ToolbarVisualView({
+          el: this,
+          model: model,
+          strings: options.strings
+        });
+        Drupal.toolbar.views.toolbarAuralView = new Drupal.toolbar.ToolbarAuralView({
+          el: this,
+          model: model,
+          strings: options.strings
+        });
+        Drupal.toolbar.views.bodyVisualView = new Drupal.toolbar.BodyVisualView({
+          el: this,
+          model: model
+        });
+
+        model.trigger('change:isFixed', model, model.get('isFixed'));
+        model.trigger('change:activeTray', model, model.get('activeTray'));
+
+        var menuModel = new Drupal.toolbar.MenuModel();
+        Drupal.toolbar.models.menuModel = menuModel;
+        Drupal.toolbar.views.menuVisualView = new Drupal.toolbar.MenuVisualView({
+          el: $(this).find('.toolbar-menu-administration').get(0),
+          model: menuModel,
+          strings: options.strings
+        });
+
+        Drupal.toolbar.setSubtrees.done(function (subtrees) {
+          menuModel.set('subtrees', subtrees);
+          var theme = drupalSettings.ajaxPageState.theme;
+          localStorage.setItem('Drupal.toolbar.subtrees.' + theme, JSON.stringify(subtrees));
+
+          model.set('areSubtreesLoaded', true);
+        });
+
+        Drupal.toolbar.views.toolbarVisualView.loadSubtrees();
+
+        $(document).on('drupalViewportOffsetChange.toolbar', function (event, offsets) {
+          model.set('offsets', offsets);
+        });
+
+        model.on('change:orientation', function (model, orientation) {
+          $(document).trigger('drupalToolbarOrientationChange', orientation);
+        }).on('change:activeTab', function (model, tab) {
+          $(document).trigger('drupalToolbarTabChange', tab);
+        }).on('change:activeTray', function (model, tray) {
+          $(document).trigger('drupalToolbarTrayChange', tray);
+        });
+
+        if (Drupal.toolbar.models.toolbarModel.get('orientation') === 'horizontal' && Drupal.toolbar.models.toolbarModel.get('activeTab') === null) {
+          Drupal.toolbar.models.toolbarModel.set({
+            activeTab: $('.toolbar-bar .toolbar-tab:not(.home-toolbar-tab) a').get(0)
+          });
+        }
+
+        $(window).on({
+          'dialog:aftercreate': function dialogAftercreate(event, dialog, $element, settings) {
+            var $toolbar = $('#toolbar-bar');
+            $toolbar.css('margin-top', '0');
+
+            if (settings.drupalOffCanvasPosition === 'top') {
+              var height = Drupal.offCanvas.getContainer($element).outerHeight();
+              $toolbar.css('margin-top', height + 'px');
+
+              $element.on('dialogContentResize.off-canvas', function () {
+                var newHeight = Drupal.offCanvas.getContainer($element).outerHeight();
+                $toolbar.css('margin-top', newHeight + 'px');
+              });
+            }
+          },
+          'dialog:beforeclose': function dialogBeforeclose() {
+            $('#toolbar-bar').css('margin-top', '0');
+          }
+        });
+      });
+    }
+  };
+
+  Drupal.toolbar = {
+    views: {},
+
+    models: {},
+
+    mql: {},
+
+    setSubtrees: new $.Deferred(),
+
+    mediaQueryChangeHandler: function mediaQueryChangeHandler(model, label, mql) {
+      switch (label) {
+        case 'toolbar.narrow':
+          model.set({
+            isOriented: mql.matches,
+            isTrayToggleVisible: false
+          });
+
+          if (!mql.matches || !model.get('orientation')) {
+            model.set({ orientation: 'vertical' }, { validate: true });
+          }
+          break;
+
+        case 'toolbar.standard':
+          model.set({
+            isFixed: mql.matches
+          });
+          break;
+
+        case 'toolbar.wide':
+          model.set({
+            orientation: mql.matches && !model.get('locked') ? 'horizontal' : 'vertical'
+          }, { validate: true });
+
+          model.set({
+            isTrayToggleVisible: mql.matches
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+  };
+
+  Drupal.theme.toolbarOrientationToggle = function () {
+    return '<div class="toolbar-toggle-orientation"><div class="toolbar-lining">' + '<button class="toolbar-icon" type="button"></button>' + '</div></div>';
+  };
+
+  Drupal.AjaxCommands.prototype.setToolbarSubtrees = function (ajax, response, status) {
+    Drupal.toolbar.setSubtrees.resolve(response.subtrees);
+  };
+})(jQuery, Drupal, drupalSettings);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.MenuModel = Backbone.Model.extend({
+    defaults: {
+      subtrees: {}
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.ToolbarModel = Backbone.Model.extend({
+    defaults: {
+      activeTab: null,
+
+      activeTray: null,
+
+      isOriented: false,
+
+      isFixed: false,
+
+      areSubtreesLoaded: false,
+
+      isViewportOverflowConstrained: false,
+
+      orientation: 'horizontal',
+
+      locked: false,
+
+      isTrayToggleVisible: true,
+
+      height: null,
+
+      offsets: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    },
+
+    validate: function validate(attributes, options) {
+      if (attributes.orientation === 'horizontal' && this.get('locked') && !options.override) {
+        return Drupal.t('The toolbar cannot be set to a horizontal orientation when it is locked.');
+      }
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone) {
+  Drupal.toolbar.BodyVisualView = Backbone.View.extend({
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change:activeTray ', this.render);
+      this.listenTo(this.model, 'change:isFixed change:isViewportOverflowConstrained', this.isToolbarFixed);
+    },
+    isToolbarFixed: function isToolbarFixed() {
+      var isViewportOverflowConstrained = this.model.get('isViewportOverflowConstrained');
+      $('body').toggleClass('toolbar-fixed', isViewportOverflowConstrained || this.model.get('isFixed'));
+    },
+    render: function render() {
+      $('body').toggleClass('toolbar-tray-open', !!this.model.get('activeTray'));
+    }
+  });
+})(jQuery, Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Backbone, Drupal) {
+  Drupal.toolbar.MenuVisualView = Backbone.View.extend({
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change:subtrees', this.render);
+    },
+    render: function render() {
+      var _this = this;
+
+      var subtrees = this.model.get('subtrees');
+
+      Object.keys(subtrees || {}).forEach(function (id) {
+        _this.$el.find('#toolbar-link-' + id).once('toolbar-subtrees').after(subtrees[id]);
+      });
+
+      if ('drupalToolbarMenu' in $.fn) {
+        this.$el.children('.toolbar-menu').drupalToolbarMenu();
+      }
+    }
+  });
+})(jQuery, Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.ToolbarAuralView = Backbone.View.extend({
+    initialize: function initialize(options) {
+      this.strings = options.strings;
+
+      this.listenTo(this.model, 'change:orientation', this.onOrientationChange);
+      this.listenTo(this.model, 'change:activeTray', this.onActiveTrayChange);
+    },
+    onOrientationChange: function onOrientationChange(model, orientation) {
+      Drupal.announce(Drupal.t('Tray orientation changed to @orientation.', {
+        '@orientation': orientation
+      }));
+    },
+    onActiveTrayChange: function onActiveTrayChange(model, tray) {
+      var relevantTray = tray === null ? model.previous('activeTray') : tray;
+
+      if (!relevantTray) {
+        return;
+      }
+      var action = tray === null ? Drupal.t('closed') : Drupal.t('opened');
+      var trayNameElement = relevantTray.querySelector('.toolbar-tray-name');
+      var text = void 0;
+      if (trayNameElement !== null) {
+        text = Drupal.t('Tray "@tray" @action.', {
+          '@tray': trayNameElement.textContent,
+          '@action': action
+        });
+      } else {
+        text = Drupal.t('Tray @action.', { '@action': action });
+      }
+      Drupal.announce(text);
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings, Backbone) {
+  Drupal.toolbar.ToolbarVisualView = Backbone.View.extend({
+    events: function events() {
+      var touchEndToClick = function touchEndToClick(event) {
+        event.preventDefault();
+        event.target.click();
+      };
+
+      return {
+        'click .toolbar-bar .toolbar-tab .trigger': 'onTabClick',
+        'click .toolbar-toggle-orientation button': 'onOrientationToggleClick',
+        'touchend .toolbar-bar .toolbar-tab .trigger': touchEndToClick,
+        'touchend .toolbar-toggle-orientation button': touchEndToClick
+      };
+    },
+    initialize: function initialize(options) {
+      this.strings = options.strings;
+
+      this.listenTo(this.model, 'change:activeTab change:orientation change:isOriented change:isTrayToggleVisible', this.render);
+      this.listenTo(this.model, 'change:mqMatches', this.onMediaQueryChange);
+      this.listenTo(this.model, 'change:offsets', this.adjustPlacement);
+      this.listenTo(this.model, 'change:activeTab change:orientation change:isOriented', this.updateToolbarHeight);
+
+      this.$el.find('.toolbar-tray .toolbar-lining').append(Drupal.theme('toolbarOrientationToggle'));
+
+      this.model.trigger('change:activeTab');
+    },
+    updateToolbarHeight: function updateToolbarHeight() {
+      var toolbarTabOuterHeight = $('#toolbar-bar').find('.toolbar-tab').outerHeight() || 0;
+      var toolbarTrayHorizontalOuterHeight = $('.is-active.toolbar-tray-horizontal').outerHeight() || 0;
+      this.model.set('height', toolbarTabOuterHeight + toolbarTrayHorizontalOuterHeight);
+
+      $('body').css({
+        'padding-top': this.model.get('height')
+      });
+
+      this.triggerDisplace();
+    },
+    triggerDisplace: function triggerDisplace() {
+      _.defer(function () {
+        Drupal.displace(true);
+      });
+    },
+    render: function render() {
+      this.updateTabs();
+      this.updateTrayOrientation();
+      this.updateBarAttributes();
+
+      $('body').removeClass('toolbar-loading');
+
+      if (this.model.changed.orientation === 'vertical' || this.model.changed.activeTab) {
+        this.loadSubtrees();
+      }
+
+      return this;
+    },
+    onTabClick: function onTabClick(event) {
+      if (event.currentTarget.hasAttribute('data-toolbar-tray')) {
+        var activeTab = this.model.get('activeTab');
+        var clickedTab = event.currentTarget;
+
+        this.model.set('activeTab', !activeTab || clickedTab !== activeTab ? clickedTab : null);
+
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    onOrientationToggleClick: function onOrientationToggleClick(event) {
+      var orientation = this.model.get('orientation');
+
+      var antiOrientation = orientation === 'vertical' ? 'horizontal' : 'vertical';
+      var locked = antiOrientation === 'vertical';
+
+      if (locked) {
+        localStorage.setItem('Drupal.toolbar.trayVerticalLocked', 'true');
+      } else {
+        localStorage.removeItem('Drupal.toolbar.trayVerticalLocked');
+      }
+
+      this.model.set({
+        locked: locked,
+        orientation: antiOrientation
+      }, {
+        validate: true,
+        override: true
+      });
+
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    updateTabs: function updateTabs() {
+      var $tab = $(this.model.get('activeTab'));
+
+      $(this.model.previous('activeTab')).removeClass('is-active').prop('aria-pressed', false);
+
+      $(this.model.previous('activeTray')).removeClass('is-active');
+
+      if ($tab.length > 0) {
+        $tab.addClass('is-active').prop('aria-pressed', true);
+        var name = $tab.attr('data-toolbar-tray');
+
+        var id = $tab.get(0).id;
+        if (id) {
+          localStorage.setItem('Drupal.toolbar.activeTabID', JSON.stringify(id));
+        }
+
+        var $tray = this.$el.find('[data-toolbar-tray="' + name + '"].toolbar-tray');
+        if ($tray.length) {
+          $tray.addClass('is-active');
+          this.model.set('activeTray', $tray.get(0));
+        } else {
+          this.model.set('activeTray', null);
+        }
+      } else {
+        this.model.set('activeTray', null);
+        localStorage.removeItem('Drupal.toolbar.activeTabID');
+      }
+    },
+    updateBarAttributes: function updateBarAttributes() {
+      var isOriented = this.model.get('isOriented');
+      if (isOriented) {
+        this.$el.find('.toolbar-bar').attr('data-offset-top', '');
+      } else {
+        this.$el.find('.toolbar-bar').removeAttr('data-offset-top');
+      }
+
+      this.$el.toggleClass('toolbar-oriented', isOriented);
+    },
+    updateTrayOrientation: function updateTrayOrientation() {
+      var orientation = this.model.get('orientation');
+
+      var antiOrientation = orientation === 'vertical' ? 'horizontal' : 'vertical';
+
+      $('body').toggleClass('toolbar-vertical', orientation === 'vertical').toggleClass('toolbar-horizontal', orientation === 'horizontal');
+
+      var removeClass = antiOrientation === 'horizontal' ? 'toolbar-tray-horizontal' : 'toolbar-tray-vertical';
+      var $trays = this.$el.find('.toolbar-tray').removeClass(removeClass).addClass('toolbar-tray-' + orientation);
+
+      var iconClass = 'toolbar-icon-toggle-' + orientation;
+      var iconAntiClass = 'toolbar-icon-toggle-' + antiOrientation;
+      var $orientationToggle = this.$el.find('.toolbar-toggle-orientation').toggle(this.model.get('isTrayToggleVisible'));
+      $orientationToggle.find('button').val(antiOrientation).attr('title', this.strings[antiOrientation]).text(this.strings[antiOrientation]).removeClass(iconClass).addClass(iconAntiClass);
+
+      var dir = document.documentElement.dir;
+      var edge = dir === 'rtl' ? 'right' : 'left';
+
+      $trays.removeAttr('data-offset-left data-offset-right data-offset-top');
+
+      $trays.filter('.toolbar-tray-vertical.is-active').attr('data-offset-' + edge, '');
+
+      $trays.filter('.toolbar-tray-horizontal.is-active').attr('data-offset-top', '');
+    },
+    adjustPlacement: function adjustPlacement() {
+      var $trays = this.$el.find('.toolbar-tray');
+      if (!this.model.get('isOriented')) {
+        $trays.removeClass('toolbar-tray-horizontal').addClass('toolbar-tray-vertical');
+      }
+    },
+    loadSubtrees: function loadSubtrees() {
+      var $activeTab = $(this.model.get('activeTab'));
+      var orientation = this.model.get('orientation');
+
+      if (!this.model.get('areSubtreesLoaded') && typeof $activeTab.data('drupal-subtrees') !== 'undefined' && orientation === 'vertical') {
+        var subtreesHash = drupalSettings.toolbar.subtreesHash;
+        var theme = drupalSettings.ajaxPageState.theme;
+        var endpoint = Drupal.url('toolbar/subtrees/' + subtreesHash);
+        var cachedSubtreesHash = localStorage.getItem('Drupal.toolbar.subtreesHash.' + theme);
+        var cachedSubtrees = JSON.parse(localStorage.getItem('Drupal.toolbar.subtrees.' + theme));
+        var isVertical = this.model.get('orientation') === 'vertical';
+
+        if (isVertical && subtreesHash === cachedSubtreesHash && cachedSubtrees) {
+          Drupal.toolbar.setSubtrees.resolve(cachedSubtrees);
+        } else if (isVertical) {
+            localStorage.removeItem('Drupal.toolbar.subtreesHash.' + theme);
+            localStorage.removeItem('Drupal.toolbar.subtrees.' + theme);
+
+            Drupal.ajax({ url: endpoint }).execute();
+
+            localStorage.setItem('Drupal.toolbar.subtreesHash.' + theme, subtreesHash);
+          }
+      }
+    }
+  });
+})(jQuery, Drupal, drupalSettings, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  function TabbingManager() {
+    this.stack = [];
+  }
+
+  function TabbingContext(options) {
+    $.extend(this, {
+      level: null,
+
+      $tabbableElements: $(),
+
+      $disabledElements: $(),
+
+      released: false,
+
+      active: false
+    }, options);
+  }
+
+  $.extend(TabbingManager.prototype, {
+    constrain: function constrain(elements) {
+      var il = this.stack.length;
+      for (var i = 0; i < il; i++) {
+        this.stack[i].deactivate();
+      }
+
+      var $elements = $(elements).find(':tabbable').addBack(':tabbable');
+
+      var tabbingContext = new TabbingContext({
+        level: this.stack.length,
+        $tabbableElements: $elements
+      });
+
+      this.stack.push(tabbingContext);
+
+      tabbingContext.activate();
+
+      $(document).trigger('drupalTabbingConstrained', tabbingContext);
+
+      return tabbingContext;
+    },
+    release: function release() {
+      var toActivate = this.stack.length - 1;
+      while (toActivate >= 0 && this.stack[toActivate].released) {
+        toActivate--;
+      }
+
+      this.stack.splice(toActivate + 1);
+
+      if (toActivate >= 0) {
+        this.stack[toActivate].activate();
+      }
+    },
+    activate: function activate(tabbingContext) {
+      var $set = tabbingContext.$tabbableElements;
+      var level = tabbingContext.level;
+
+      var $disabledSet = $(':tabbable').not($set);
+
+      tabbingContext.$disabledElements = $disabledSet;
+
+      var il = $disabledSet.length;
+      for (var i = 0; i < il; i++) {
+        this.recordTabindex($disabledSet.eq(i), level);
+      }
+
+      $disabledSet.prop('tabindex', -1).prop('autofocus', false);
+
+      var $hasFocus = $set.filter('[autofocus]').eq(-1);
+
+      if ($hasFocus.length === 0) {
+        $hasFocus = $set.eq(0);
+      }
+      $hasFocus.trigger('focus');
+    },
+    deactivate: function deactivate(tabbingContext) {
+      var $set = tabbingContext.$disabledElements;
+      var level = tabbingContext.level;
+      var il = $set.length;
+      for (var i = 0; i < il; i++) {
+        this.restoreTabindex($set.eq(i), level);
+      }
+    },
+    recordTabindex: function recordTabindex($el, level) {
+      var tabInfo = $el.data('drupalOriginalTabIndices') || {};
+      tabInfo[level] = {
+        tabindex: $el[0].getAttribute('tabindex'),
+        autofocus: $el[0].hasAttribute('autofocus')
+      };
+      $el.data('drupalOriginalTabIndices', tabInfo);
+    },
+    restoreTabindex: function restoreTabindex($el, level) {
+      var tabInfo = $el.data('drupalOriginalTabIndices');
+      if (tabInfo && tabInfo[level]) {
+        var data = tabInfo[level];
+        if (data.tabindex) {
+          $el[0].setAttribute('tabindex', data.tabindex);
+        } else {
+            $el[0].removeAttribute('tabindex');
+          }
+        if (data.autofocus) {
+          $el[0].setAttribute('autofocus', 'autofocus');
+        }
+
+        if (level === 0) {
+          $el.removeData('drupalOriginalTabIndices');
+        } else {
+          var levelToDelete = level;
+          while (tabInfo.hasOwnProperty(levelToDelete)) {
+            delete tabInfo[levelToDelete];
+            levelToDelete++;
+          }
+          $el.data('drupalOriginalTabIndices', tabInfo);
+        }
+      }
+    }
+  });
+
+  $.extend(TabbingContext.prototype, {
+    release: function release() {
+      if (!this.released) {
+        this.deactivate();
+        this.released = true;
+        Drupal.tabbingManager.release(this);
+
+        $(document).trigger('drupalTabbingContextReleased', this);
+      }
+    },
+    activate: function activate() {
+      if (!this.active && !this.released) {
+        this.active = true;
+        Drupal.tabbingManager.activate(this);
+
+        $(document).trigger('drupalTabbingContextActivated', this);
+      }
+    },
+    deactivate: function deactivate() {
+      if (this.active) {
+        this.active = false;
+        Drupal.tabbingManager.deactivate(this);
+
+        $(document).trigger('drupalTabbingContextDeactivated', this);
+      }
+    }
+  });
+
+  if (Drupal.tabbingManager) {
+    return;
+  }
+
+  Drupal.tabbingManager = new TabbingManager();
+})(jQuery, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone) {
+  var strings = {
+    tabbingReleased: Drupal.t('Tabbing is no longer constrained by the Contextual module.'),
+    tabbingConstrained: Drupal.t('Tabbing is constrained to a set of @contextualsCount and the edit mode toggle.'),
+    pressEsc: Drupal.t('Press the esc key to exit.')
+  };
+
+  function initContextualToolbar(context) {
+    if (!Drupal.contextual || !Drupal.contextual.collection) {
+      return;
+    }
+
+    var contextualToolbar = Drupal.contextualToolbar;
+    contextualToolbar.model = new contextualToolbar.StateModel({
+      isViewing: localStorage.getItem('Drupal.contextualToolbar.isViewing') !== 'false'
+    }, {
+      contextualCollection: Drupal.contextual.collection
+    });
+
+    var viewOptions = {
+      el: $('.toolbar .toolbar-bar .contextual-toolbar-tab'),
+      model: contextualToolbar.model,
+      strings: strings
+    };
+    new contextualToolbar.VisualView(viewOptions);
+    new contextualToolbar.AuralView(viewOptions);
+  }
+
+  Drupal.behaviors.contextualToolbar = {
+    attach: function attach(context) {
+      if ($('body').once('contextualToolbar-init').length) {
+        initContextualToolbar(context);
+      }
+    }
+  };
+
+  Drupal.contextualToolbar = {
+    model: null
+  };
+})(jQuery, Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, Backbone) {
+  Drupal.contextualToolbar.StateModel = Backbone.Model.extend({
+    defaults: {
+      isViewing: true,
+
+      isVisible: false,
+
+      contextualCount: 0,
+
+      tabbingContext: null
+    },
+
+    initialize: function initialize(attrs, options) {
+      this.listenTo(options.contextualCollection, 'reset remove add', this.countContextualLinks);
+      this.listenTo(options.contextualCollection, 'add', this.lockNewContextualLinks);
+
+      this.listenTo(this, 'change:contextualCount', this.updateVisibility);
+
+      this.listenTo(this, 'change:isViewing', function (model, isViewing) {
+        options.contextualCollection.each(function (contextualModel) {
+          contextualModel.set('isLocked', !isViewing);
+        });
+      });
+    },
+    countContextualLinks: function countContextualLinks(contextualModel, contextualCollection) {
+      this.set('contextualCount', contextualCollection.length);
+    },
+    lockNewContextualLinks: function lockNewContextualLinks(contextualModel, contextualCollection) {
+      if (!this.get('isViewing')) {
+        contextualModel.set('isLocked', true);
+      }
+    },
+    updateVisibility: function updateVisibility() {
+      this.set('isVisible', this.get('contextualCount') > 0);
+    }
+  });
+})(Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone, _) {
+  Drupal.contextualToolbar.AuralView = Backbone.View.extend({
+    announcedOnce: false,
+
+    initialize: function initialize(options) {
+      this.options = options;
+
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:isViewing', this.manageTabbing);
+
+      $(document).on('keyup', _.bind(this.onKeypress, this));
+      this.manageTabbing();
+    },
+    render: function render() {
+      this.$el.find('button').attr('aria-pressed', !this.model.get('isViewing'));
+
+      return this;
+    },
+    manageTabbing: function manageTabbing() {
+      var tabbingContext = this.model.get('tabbingContext');
+
+      if (tabbingContext) {
+        if (tabbingContext.active) {
+          Drupal.announce(this.options.strings.tabbingReleased);
+        }
+        tabbingContext.release();
+      }
+
+      if (!this.model.get('isViewing')) {
+        tabbingContext = Drupal.tabbingManager.constrain($('.contextual-toolbar-tab, .contextual'));
+        this.model.set('tabbingContext', tabbingContext);
+        this.announceTabbingConstraint();
+        this.announcedOnce = true;
+      }
+    },
+    announceTabbingConstraint: function announceTabbingConstraint() {
+      var strings = this.options.strings;
+      Drupal.announce(Drupal.formatString(strings.tabbingConstrained, {
+        '@contextualsCount': Drupal.formatPlural(Drupal.contextual.collection.length, '@count contextual link', '@count contextual links')
+      }));
+      Drupal.announce(strings.pressEsc);
+    },
+    onKeypress: function onKeypress(event) {
+      if (!this.announcedOnce && event.keyCode === 9 && !this.model.get('isViewing')) {
+        this.announceTabbingConstraint();
+
+        this.announcedOnce = true;
+      }
+
+      if (event.keyCode === 27) {
+        this.model.set('isViewing', true);
+      }
+    }
+  });
+})(jQuery, Drupal, Backbone, _);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, Backbone) {
+  Drupal.contextualToolbar.VisualView = Backbone.View.extend({
+    events: function events() {
+      var touchEndToClick = function touchEndToClick(event) {
+        event.preventDefault();
+        event.target.click();
+      };
+
+      return {
+        click: function click() {
+          this.model.set('isViewing', !this.model.get('isViewing'));
+        },
+
+        touchend: touchEndToClick
+      };
+    },
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:isViewing', this.persist);
+    },
+    render: function render() {
+      this.$el.toggleClass('hidden', !this.model.get('isVisible'));
+
+      this.$el.find('button').toggleClass('is-active', !this.model.get('isViewing'));
+
+      return this;
+    },
+    persist: function persist(model, isViewing) {
+      if (!isViewing) {
+        localStorage.setItem('Drupal.contextualToolbar.isViewing', 'false');
+      } else {
+        localStorage.removeItem('Drupal.contextualToolbar.isViewing');
+      }
+    }
+  });
+})(Drupal, Backbone);;
+;/*!
+ * hoverIntent v1.8.1 // 2014.08.11 // jQuery v1.9.1+
+ * http://briancherne.github.io/jquery-hoverIntent/
+ *
+ * You may use hoverIntent under the terms of the MIT license. Basically that
+ * means you are free to use hoverIntent as long as this header is left intact.
+ * Copyright 2007, 2014 Brian Cherne
+ */
+
+/* hoverIntent is similar to jQuery's built-in "hover" method except that
+ * instead of firing the handlerIn function immediately, hoverIntent checks
+ * to see if the user's mouse has slowed down (beneath the sensitivity
+ * threshold) before firing the event. The handlerOut function is only
+ * called after a matching handlerIn.
+ *
+ * // basic usage ... just like .hover()
+ * .hoverIntent( handlerIn, handlerOut )
+ * .hoverIntent( handlerInOut )
+ *
+ * // basic usage ... with event delegation!
+ * .hoverIntent( handlerIn, handlerOut, selector )
+ * .hoverIntent( handlerInOut, selector )
+ *
+ * // using a basic configuration object
+ * .hoverIntent( config )
+ *
+ * @param  handlerIn   function OR configuration object
+ * @param  handlerOut  function OR selector for delegation OR undefined
+ * @param  selector    selector OR undefined
+ * @author Brian Cherne <brian(at)cherne(dot)net>
+ */(function (factory) {
+  'use strict';
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (jQuery && !jQuery.fn.hoverIntent) {
+    factory(jQuery);
+  }
+})(function ($) {
+  'use strict';
+
+  // default configuration values
+  var _cfg = {
+    interval: 100,
+    sensitivity: 6,
+    timeout: 0
+  };
+
+  // counter used to generate an ID for each instance
+  var INSTANCE_COUNT = 0;
+
+  // current X and Y position of mouse, updated during mousemove tracking (shared across instances)
+  var cX, cY;
+
+  // saves the current pointer position coordinates based on the given mousemove event
+  var track = function (ev) {
+    cX = ev.pageX;
+    cY = ev.pageY;
+  };
+
+  // compares current and previous mouse positions
+  var compare = function (ev,$el,s,cfg) {
+    // compare mouse positions to see if pointer has slowed enough to trigger `over` function
+    if ( Math.sqrt( (s.pX - cX) * (s.pX - cX) + (s.pY - cY) * (s.pY - cY) ) < cfg.sensitivity ) {
+      $el.off(s.event,track);
+      delete s.timeoutId;
+      // set hoverIntent state as active for this element (permits `out` handler to trigger)
+      s.isActive = true;
+      // overwrite old mouseenter event coordinates with most recent pointer position
+      ev.pageX = cX; ev.pageY = cY;
+      // clear coordinate data from state object
+      delete s.pX; delete s.pY;
+      return cfg.over.apply($el[0],[ev]);
+    } else {
+      // set previous coordinates for next comparison
+      s.pX = cX; s.pY = cY;
+      // use self-calling timeout, guarantees intervals are spaced out properly (avoids JavaScript timer bugs)
+      s.timeoutId = setTimeout( function () {compare(ev, $el, s, cfg);} , cfg.interval );
+    }
+  };
+
+  // triggers given `out` function at configured `timeout` after a mouseleave and clears state
+  var delay = function (ev,$el,s,out) {
+    delete $el.data('hoverIntent')[s.id];
+    return out.apply($el[0],[ev]);
+  };
+
+  $.fn.hoverIntent = function (handlerIn,handlerOut,selector) {
+    // instance ID, used as a key to store and retrieve state information on an element
+    var instanceId = INSTANCE_COUNT++;
+
+    // extend the default configuration and parse parameters
+    var cfg = $.extend({}, _cfg);
+    if ( $.isPlainObject(handlerIn) ) {
+      cfg = $.extend(cfg, handlerIn);
+      if ( !$.isFunction(cfg.out) ) {
+        cfg.out = cfg.over;
+      }
+    } else if ( $.isFunction(handlerOut) ) {
+      cfg = $.extend(cfg, { over: handlerIn, out: handlerOut, selector: selector } );
+    } else {
+      cfg = $.extend(cfg, { over: handlerIn, out: handlerIn, selector: handlerOut } );
+    }
+
+    // A private function for handling mouse 'hovering'
+    var handleHover = function (e) {
+      // cloned event to pass to handlers (copy required for event object to be passed in IE)
+      var ev = $.extend({},e);
+
+      // the current target of the mouse event, wrapped in a jQuery object
+      var $el = $(this);
+
+      // read hoverIntent data from element (or initialize if not present)
+      var hoverIntentData = $el.data('hoverIntent');
+      if (!hoverIntentData) { $el.data('hoverIntent', (hoverIntentData = {})); }
+
+      // read per-instance state from element (or initialize if not present)
+      var state = hoverIntentData[instanceId];
+      if (!state) { hoverIntentData[instanceId] = state = { id: instanceId }; }
+
+      // state properties:
+      // id = instance ID, used to clean up data
+      // timeoutId = timeout ID, reused for tracking mouse position and delaying "out" handler
+      // isActive = plugin state, true after `over` is called just until `out` is called
+      // pX, pY = previously-measured pointer coordinates, updated at each polling interval
+      // event = string representing the namespaced event used for mouse tracking
+
+      // clear any existing timeout
+      if (state.timeoutId) { state.timeoutId = clearTimeout(state.timeoutId); }
+
+      // namespaced event used to register and unregister mousemove tracking
+      var mousemove = state.event = 'mousemove.hoverIntent.hoverIntent' + instanceId;
+
+      // handle the event, based on its type
+      if (e.type === 'mouseenter') {
+        // do nothing if already active
+        if (state.isActive) { return; }
+        // set "previous" X and Y position based on initial entry point
+        state.pX = ev.pageX; state.pY = ev.pageY;
+        // update "current" X and Y position based on mousemove
+        $el.off(mousemove,track).on(mousemove,track);
+        // start polling interval (self-calling timeout) to compare mouse coordinates over time
+        state.timeoutId = setTimeout( function () {compare(ev,$el,state,cfg);} , cfg.interval );
+      } else { // "mouseleave"
+        // do nothing if not already active
+        if (!state.isActive) { return; }
+        // unbind expensive mousemove event
+        $el.off(mousemove,track);
+        // if hoverIntent state is true, then call the mouseOut function after the specified delay
+        state.timeoutId = setTimeout( function () {delay(ev,$el,state,cfg.out);} , cfg.timeout );
+      }
+    };
+
+    // listen for mouseenter and mouseleave
+    return this.on({'mouseenter.hoverIntent':handleHover,'mouseleave.hoverIntent':handleHover}, cfg.selector);
+  };
+});
+;
+(function ($, Drupal) {
+  Drupal.behaviors.adminToolbar = {
+    attach: function (context, settings) {
+
+      $('a.toolbar-icon', context).removeAttr('title');
+
+      $('.toolbar-tray li.menu-item--expanded, .toolbar-tray ul li.menu-item--expanded .menu-item', context).hoverIntent({
+        over: function () {
+          // At the current depth, we should delete all "hover-intent" classes.
+          // Other wise we get unwanted behaviour where menu items are expanded while already in hovering other ones.
+          $(this).parent().find('li').removeClass('hover-intent');
+          $(this).addClass('hover-intent');
+        },
+        out: function () {
+          $(this).removeClass('hover-intent');
+        },
+        timeout: 250
+      });
+
+      // Make the toolbar menu navigable with keyboard.
+      $('ul.toolbar-menu li.menu-item--expanded a', context).on('focusin', function () {
+        $('li.menu-item--expanded', context).removeClass('hover-intent');
+        $(this).parents('li.menu-item--expanded').addClass('hover-intent');
+      });
+
+      $('ul.toolbar-menu li.menu-item a', context).keydown(function (e) {
+        if ((e.shiftKey && (e.keyCode || e.which) == 9)) {
+          if ($(this).parent('.menu-item').prev().hasClass('menu-item--expanded')) {
+            $(this).parent('.menu-item').prev().addClass('hover-intent');
+          }
+        }
+      });
+
+      $('.toolbar-menu:first-child > .menu-item:not(.menu-item--expanded) a, .toolbar-tab > a', context).on('focusin', function () {
+        $('.menu-item--expanded').removeClass('hover-intent');
+      });
+
+      $('.toolbar-menu:first-child > .menu-item', context).on('hover', function () {
+        $(this, 'a').css("background: #fff;");
+      });
+
+      $('ul:not(.toolbar-menu)', context).on({
+        mousemove: function () {
+          $('li.menu-item--expanded').removeClass('hover-intent');
+        },
+        hover: function () {
+          $('li.menu-item--expanded').removeClass('hover-intent');
+        }
+      });
+
+      // Always hide the dropdown menu on mobile.
+      if ($('body:not(.toolbar-fixed) #toolbar-item-administration-tray').hasClass('toolbar-tray-vertical')) {
+        $('#toolbar-item-administration').removeClass('is-active');
+        $('#toolbar-item-administration-tray').removeClass('is-active');
+      };
+
+    }
+  };
+})(jQuery, Drupal);
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var pathInfo = drupalSettings.path;
+  var escapeAdminPath = sessionStorage.getItem('escapeAdminPath');
+  var windowLocation = window.location;
+
+  if (!pathInfo.currentPathIsAdmin && !/destination=/.test(windowLocation.search)) {
+    sessionStorage.setItem('escapeAdminPath', windowLocation);
+  }
+
+  Drupal.behaviors.escapeAdmin = {
+    attach: function attach() {
+      var $toolbarEscape = $('[data-toolbar-escape-admin]').once('escapeAdmin');
+      if ($toolbarEscape.length && pathInfo.currentPathIsAdmin) {
+        if (escapeAdminPath !== null) {
+          $toolbarEscape.attr('href', escapeAdminPath);
+        } else {
+          $toolbarEscape.text(Drupal.t('Home'));
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);;

@@ -1,0 +1,2324 @@
+(function ($, Drupal, drupalSettings) {
+
+Drupal.Nodejs = Drupal.Nodejs || {
+  'contentChannelNotificationCallbacks': {},
+  'presenceCallbacks': {},
+  'callbacks': {},
+  'socket': false,
+  'connectionSetupHandlers': {}
+};
+
+Drupal.behaviors.nodejs = {
+  attach: function () {
+    if (!Drupal.Nodejs.socket) {
+      Drupal.Nodejs.connect();
+    }
+  }
+};
+
+Drupal.Nodejs.runCallbacks = function (message) {
+  // It's possible that this message originated from an ajax request from the
+  // client associated with this socket.
+  if (Drupal.Nodejs.socket.sessionid && message.clientSocketId == Drupal.Nodejs.socket.sessionid) {
+    return;
+  }
+
+  if (message.callback) {
+    if (typeof message.callback == 'string') {
+      message.callback = [message.callback];
+    }
+    $.each(message.callback, function () {
+      var callback = this;
+      if (Drupal.Nodejs.callbacks[callback] && $.isFunction(Drupal.Nodejs.callbacks[callback].callback)) {
+        try {
+          Drupal.Nodejs.callbacks[callback].callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else if (message.presenceNotification != undefined) {
+    $.each(Drupal.Nodejs.presenceCallbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else if (message.contentChannelNotification != undefined) {
+    $.each(Drupal.Nodejs.contentChannelNotificationCallbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+  else {
+    $.each(Drupal.Nodejs.callbacks, function () {
+      if ($.isFunction(this.callback)) {
+        try {
+          this.callback(message);
+        }
+        catch (exception) {}
+      }
+    });
+  }
+};
+
+Drupal.Nodejs.runSetupHandlers = function (type) {
+  $.each(Drupal.Nodejs.connectionSetupHandlers, function () {
+    if ($.isFunction(this[type])) {
+      try {
+        this[type]();
+      }
+      catch (exception) {}
+    }
+  });
+};
+
+Drupal.Nodejs.connect = function () {
+  var url = drupalSettings.nodejs.client.scheme + '://' + drupalSettings.nodejs.client.host + ':' + drupalSettings.nodejs.client.port;
+  drupalSettings.nodejs.connectTimeout = drupalSettings.nodejs.connectTimeout || 5000;
+  if (typeof io === 'undefined') {
+     return false;
+  }
+  Drupal.Nodejs.socket = io.connect(url, {
+    timeout: drupalSettings.nodejs.connectTimeout,
+    transports: drupalSettings.nodejs.client.transports,
+    path: drupalSettings.nodejs.client.path,
+  });
+  Drupal.Nodejs.socket.on('connect', function() {
+    Drupal.Nodejs.sendAuthMessage();
+    Drupal.Nodejs.runSetupHandlers('connect');
+    if (Drupal.ajax != undefined) {
+      // Monkey-patch Drupal.ajax.prototype.beforeSerialize to auto-magically
+      // send sessionId for AJAX requests so we can exclude the current browser
+      // window from resulting notifications. We do this so that modules can hook
+      // in to other modules ajax requests without having to patch them.
+      Drupal.Nodejs.originalBeforeSerialize = Drupal.ajax.prototype.beforeSerialize;
+      Drupal.ajax.prototype.beforeSerialize = function(element_settings, options) {
+        options.data['nodejs_client_socket_id'] = Drupal.Nodejs.socket.socket.sessionid;
+        return Drupal.Nodejs.originalBeforeSerialize(element_settings, options);
+      };
+    }
+  });
+
+  Drupal.Nodejs.socket.on('message', Drupal.Nodejs.runCallbacks);
+
+  Drupal.Nodejs.socket.on('disconnect', function() {
+    Drupal.Nodejs.runSetupHandlers('disconnect');
+    if (Drupal.ajax != undefined) {
+      Drupal.ajax.prototype.beforeSerialize = Drupal.Nodejs.originalBeforeSerialize;
+    }
+  });
+  setTimeout("Drupal.Nodejs.checkConnection()", drupalSettings.nodejs.connectTimeout + 250);
+};
+
+Drupal.Nodejs.checkConnection = function () {
+  if (!Drupal.Nodejs.socket.connected) {
+    Drupal.Nodejs.runSetupHandlers('connectionFailure');
+  }
+};
+
+Drupal.Nodejs.joinTokenChannel = function (channel, contentToken) {
+  var joinMessage = {
+    channel: channel,
+    contentToken: contentToken
+  };
+
+  // Add to the global settings so that the user is joined again when the client reconnects.
+  drupalSettings.nodejs.contentTokens = drupalSettings.nodejs.contentTokens || {};
+  drupalSettings.nodejs.contentTokens[channel] = contentToken;
+
+  Drupal.Nodejs.socket.emit('join-token-channel', joinMessage);
+};
+
+Drupal.Nodejs.sendAuthMessage = function () {
+  var authMessage = {
+    authToken: drupalSettings.nodejs.authToken,
+    contentTokens: drupalSettings.nodejs.contentTokens
+  };
+  Drupal.Nodejs.socket.emit('authenticate', authMessage);
+};
+
+})(jQuery, Drupal, drupalSettings);
+
+;
+(function ($, Drupal, drupalSettings) {
+
+  Drupal.Nodejs.callbacks.pdRequest = {
+    callback: function (message) {
+      $('.view-doc-requests, .view-user-requests').triggerHandler('RefreshView');
+    }
+  };
+
+})(jQuery, Drupal, drupalSettings);
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  Drupal.behaviors.fieldUIFieldStorageAddForm = {
+    attach: function attach(context) {
+      var $form = $(context).find('[data-drupal-selector="field-ui-field-storage-add-form"]').once('field_ui_add');
+      if ($form.length) {
+        $form.find('.js-form-item-label label,' + '.js-form-item-field-name label,' + '.js-form-item-existing-storage-label label').addClass('js-form-required form-required');
+
+        var $newFieldType = $form.find('select[name="new_storage_type"]');
+        var $existingStorageName = $form.find('select[name="existing_storage_name"]');
+        var $existingStorageLabel = $form.find('input[name="existing_storage_label"]');
+
+        $newFieldType.on('change', function () {
+          if ($(this).val() !== '') {
+            $existingStorageName.val('').trigger('change');
+          }
+        });
+
+        $existingStorageName.on('change', function () {
+          var value = $(this).val();
+          if (value !== '') {
+            $newFieldType.val('').trigger('change');
+
+            if (typeof drupalSettings.existingFieldLabels[value] !== 'undefined') {
+              $existingStorageLabel.val(drupalSettings.existingFieldLabels[value]);
+            }
+          }
+        });
+      }
+    }
+  };
+
+  Drupal.behaviors.fieldUIDisplayOverview = {
+    attach: function attach(context, settings) {
+      $(context).find('table#field-display-overview').once('field-display-overview').each(function () {
+        Drupal.fieldUIOverview.attach(this, settings.fieldUIRowsData, Drupal.fieldUIDisplayOverview);
+      });
+    }
+  };
+
+  Drupal.fieldUIOverview = {
+    attach: function attach(table, rowsData, rowHandlers) {
+      var tableDrag = Drupal.tableDrag[table.id];
+
+      tableDrag.onDrop = this.onDrop;
+      tableDrag.row.prototype.onSwap = this.onSwap;
+
+      $(table).find('tr.draggable').each(function () {
+        var row = this;
+        if (row.id in rowsData) {
+          var data = rowsData[row.id];
+          data.tableDrag = tableDrag;
+
+          var rowHandler = new rowHandlers[data.rowHandler](row, data);
+          $(row).data('fieldUIRowHandler', rowHandler);
+        }
+      });
+    },
+    onChange: function onChange() {
+      var $trigger = $(this);
+      var $row = $trigger.closest('tr');
+      var rowHandler = $row.data('fieldUIRowHandler');
+
+      var refreshRows = {};
+      refreshRows[rowHandler.name] = $trigger.get(0);
+
+      var region = rowHandler.getRegion();
+      if (region !== rowHandler.region) {
+        $row.find('select.js-field-parent').val('');
+
+        $.extend(refreshRows, rowHandler.regionChange(region));
+
+        rowHandler.region = region;
+      }
+
+      Drupal.fieldUIOverview.AJAXRefreshRows(refreshRows);
+    },
+    onDrop: function onDrop() {
+      var dragObject = this;
+      var row = dragObject.rowObject.element;
+      var $row = $(row);
+      var rowHandler = $row.data('fieldUIRowHandler');
+      if (typeof rowHandler !== 'undefined') {
+        var regionRow = $row.prevAll('tr.region-message').get(0);
+        var region = regionRow.className.replace(/([^ ]+[ ]+)*region-([^ ]+)-message([ ]+[^ ]+)*/, '$2');
+
+        if (region !== rowHandler.region) {
+          var refreshRows = rowHandler.regionChange(region);
+
+          rowHandler.region = region;
+
+          Drupal.fieldUIOverview.AJAXRefreshRows(refreshRows);
+        }
+      }
+    },
+    onSwap: function onSwap(draggedRow) {
+      var rowObject = this;
+      $(rowObject.table).find('tr.region-message').each(function () {
+        var $this = $(this);
+
+        if ($this.prev('tr').get(0) === rowObject.group[rowObject.group.length - 1]) {
+          if (rowObject.method !== 'keyboard' || rowObject.direction === 'down') {
+            rowObject.swap('after', this);
+          }
+        }
+
+        if ($this.next('tr').is(':not(.draggable)') || $this.next('tr').length === 0) {
+          $this.removeClass('region-populated').addClass('region-empty');
+        } else if ($this.is('.region-empty')) {
+            $this.removeClass('region-empty').addClass('region-populated');
+          }
+      });
+    },
+    AJAXRefreshRows: function AJAXRefreshRows(rows) {
+      var rowNames = [];
+      var ajaxElements = [];
+      Object.keys(rows || {}).forEach(function (rowName) {
+        rowNames.push(rowName);
+        ajaxElements.push(rows[rowName]);
+      });
+
+      if (rowNames.length) {
+        $(ajaxElements).after(Drupal.theme.ajaxProgressThrobber());
+
+        $('input[name=refresh_rows]').val(rowNames.join(' '));
+        $('input[data-drupal-selector="edit-refresh"]').trigger('mousedown');
+
+        $(ajaxElements).prop('disabled', true);
+      }
+    }
+  };
+
+  Drupal.fieldUIDisplayOverview = {};
+
+  Drupal.fieldUIDisplayOverview.field = function (row, data) {
+    this.row = row;
+    this.name = data.name;
+    this.region = data.region;
+    this.tableDrag = data.tableDrag;
+    this.defaultPlugin = data.defaultPlugin;
+
+    this.$pluginSelect = $(row).find('.field-plugin-type');
+    this.$pluginSelect.on('change', Drupal.fieldUIOverview.onChange);
+
+    this.$regionSelect = $(row).find('select.field-region');
+    this.$regionSelect.on('change', Drupal.fieldUIOverview.onChange);
+
+    return this;
+  };
+
+  Drupal.fieldUIDisplayOverview.field.prototype = {
+    getRegion: function getRegion() {
+      return this.$regionSelect.val();
+    },
+    regionChange: function regionChange(region) {
+      region = region.replace(/-/g, '_');
+
+      this.$regionSelect.val(region);
+
+      if (this.region === 'hidden') {
+        var value = typeof this.defaultPlugin !== 'undefined' ? this.defaultPlugin : this.$pluginSelect.find('option').val();
+
+        if (typeof value !== 'undefined') {
+          this.$pluginSelect.val(value);
+        }
+      }
+
+      var refreshRows = {};
+      refreshRows[this.name] = this.$pluginSelect.get(0);
+
+      return refreshRows;
+    }
+  };
+})(jQuery, Drupal, drupalSettings);;
+(function ($) {
+
+  'use strict';
+  Drupal.behaviors.fieldUIFieldsOverview = {
+    attach: function (context, settings) {
+      $('table#field-overview', context).once('field-field-overview', function () {
+        Drupal.fieldUIOverview.attach(this, settings.fieldUIRowsData, Drupal.fieldUIFieldOverview);
+      });
+    }
+  };
+
+  /**
+   * Row handlers for the 'Manage fields' screen.
+   */
+  Drupal.fieldUIFieldOverview = Drupal.fieldUIFieldOverview || {};
+
+  Drupal.fieldUIFieldOverview.group = function (row, data) {
+    this.row = row;
+    this.name = data.name;
+    this.region = data.region;
+    this.tableDrag = data.tableDrag;
+
+    // Attach change listener to the 'group format' select.
+    this.$formatSelect = $('select.field-group-type', row);
+    this.$formatSelect.change(Drupal.fieldUIOverview.onChange);
+
+    return this;
+  };
+
+  Drupal.fieldUIFieldOverview.group.prototype = {
+    getRegion: function () {
+      return 'main';
+    },
+
+    regionChange: function (region, recurse) {
+      return {};
+    },
+
+    regionChangeFields: function (region, element, refreshRows) {
+
+      // Create a new tabledrag rowObject, that will compute the group's child
+      // rows for us.
+      var tableDrag = element.tableDrag;
+      var rowObject = new tableDrag.row(element.row, 'mouse', true);
+      // Skip the main row, we handled it above.
+      rowObject.group.shift();
+
+      // Let child rows handlers deal with the region change - without recursing
+      // on nested group rows, we are handling them all here.
+      $.each(rowObject.group, function () {
+        var childRow = this;
+        var childRowHandler = $(childRow).data('fieldUIRowHandler');
+        $.extend(refreshRows, childRowHandler.regionChange(region, false));
+      });
+    }
+  };
+
+
+  /**
+   * Row handlers for the 'Manage display' screen.
+   */
+  Drupal.fieldUIDisplayOverview = Drupal.fieldUIDisplayOverview || {};
+
+  Drupal.fieldUIDisplayOverview.group = function (row, data) {
+    this.row = row;
+    this.name = data.name;
+    this.region = data.region;
+    this.tableDrag = data.tableDrag;
+
+    // Attach change listener to the 'group format' select.
+    this.$regionSelect = $(row).find('select.field-region');
+    this.$regionSelect.on('change', Drupal.fieldUIOverview.onChange);
+
+    return this;
+  };
+
+  Drupal.fieldUIDisplayOverview.group.prototype = {
+    getRegion: function getRegion() {
+      return this.$regionSelect.val();
+    },
+
+    regionChange: function (region, recurse) {
+
+      // Default recurse to true.
+      recurse = (typeof recurse === 'undefined') || recurse;
+
+      // When triggered by a row drag, the 'region' select needs to be adjusted to
+      // the new region.
+      region = region.replace(/-/g, '_');
+      this.$regionSelect.val(region);
+
+      var refreshRows = {};
+      refreshRows[this.name] = this.$regionSelect.get(0);
+
+      if (recurse) {
+        this.regionChangeFields(region, this, refreshRows);
+      }
+
+      return refreshRows;
+    },
+
+    regionChangeFields: function (region, element, refreshRows) {
+
+      // Create a new tabledrag rowObject, that will compute the group's child
+      // rows for us.
+      var tableDrag = element.tableDrag;
+      var rowObject = new tableDrag.row(element.row, 'mouse', true);
+      // Skip the main row, we handled it above.
+      rowObject.group.shift();
+
+      // Let child rows handlers deal with the region change - without recursing
+      // on nested group rows, we are handling them all here.
+      $.each(rowObject.group, function () {
+        var childRow = this;
+        var childRowHandler = $(childRow).data('fieldUIRowHandler');
+        $.extend(refreshRows, childRowHandler.regionChange(region, false));
+      });
+
+    }
+
+  };
+
+})(jQuery);
+;
+/*!
+ * jQuery Form Plugin
+ * version: 4.2.2
+ * Requires jQuery v1.7.2 or later
+ * Project repository: https://github.com/jquery-form/form
+
+ * Copyright 2017 Kevin Morris
+ * Copyright 2006 M. Alsup
+
+ * Dual licensed under the LGPL-2.1+ or MIT licenses
+ * https://github.com/jquery-form/form#license
+
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ */
+!function(e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof module&&module.exports?module.exports=function(t,r){return void 0===r&&(r="undefined"!=typeof window?require("jquery"):require("jquery")(t)),e(r),r}:e(jQuery)}(function(e){"use strict";function t(t){var r=t.data;t.isDefaultPrevented()||(t.preventDefault(),e(t.target).closest("form").ajaxSubmit(r))}function r(t){var r=t.target,a=e(r);if(!a.is("[type=submit],[type=image]")){var n=a.closest("[type=submit]");if(0===n.length)return;r=n[0]}var i=r.form;if(i.clk=r,"image"===r.type)if(void 0!==t.offsetX)i.clk_x=t.offsetX,i.clk_y=t.offsetY;else if("function"==typeof e.fn.offset){var o=a.offset();i.clk_x=t.pageX-o.left,i.clk_y=t.pageY-o.top}else i.clk_x=t.pageX-r.offsetLeft,i.clk_y=t.pageY-r.offsetTop;setTimeout(function(){i.clk=i.clk_x=i.clk_y=null},100)}function a(){if(e.fn.ajaxSubmit.debug){var t="[jquery.form] "+Array.prototype.join.call(arguments,"");window.console&&window.console.log?window.console.log(t):window.opera&&window.opera.postError&&window.opera.postError(t)}}var n=/\r?\n/g,i={};i.fileapi=void 0!==e('<input type="file">').get(0).files,i.formdata=void 0!==window.FormData;var o=!!e.fn.prop;e.fn.attr2=function(){if(!o)return this.attr.apply(this,arguments);var e=this.prop.apply(this,arguments);return e&&e.jquery||"string"==typeof e?e:this.attr.apply(this,arguments)},e.fn.ajaxSubmit=function(t,r,n,s){function u(r){var a,n,i=e.param(r,t.traditional).split("&"),o=i.length,s=[];for(a=0;a<o;a++)i[a]=i[a].replace(/\+/g," "),n=i[a].split("="),s.push([decodeURIComponent(n[0]),decodeURIComponent(n[1])]);return s}function c(r){function n(e){var t=null;try{e.contentWindow&&(t=e.contentWindow.document)}catch(e){a("cannot get iframe.contentWindow document: "+e)}if(t)return t;try{t=e.contentDocument?e.contentDocument:e.document}catch(r){a("cannot get iframe.contentDocument: "+r),t=e.document}return t}function i(){function t(){try{var e=n(v).readyState;a("state = "+e),e&&"uninitialized"===e.toLowerCase()&&setTimeout(t,50)}catch(e){a("Server abort: ",e," (",e.name,")"),s(L),j&&clearTimeout(j),j=void 0}}var r=p.attr2("target"),i=p.attr2("action"),o=p.attr("enctype")||p.attr("encoding")||"multipart/form-data";w.setAttribute("target",m),l&&!/post/i.test(l)||w.setAttribute("method","POST"),i!==f.url&&w.setAttribute("action",f.url),f.skipEncodingOverride||l&&!/post/i.test(l)||p.attr({encoding:"multipart/form-data",enctype:"multipart/form-data"}),f.timeout&&(j=setTimeout(function(){T=!0,s(A)},f.timeout));var u=[];try{if(f.extraData)for(var c in f.extraData)f.extraData.hasOwnProperty(c)&&(e.isPlainObject(f.extraData[c])&&f.extraData[c].hasOwnProperty("name")&&f.extraData[c].hasOwnProperty("value")?u.push(e('<input type="hidden" name="'+f.extraData[c].name+'">',k).val(f.extraData[c].value).appendTo(w)[0]):u.push(e('<input type="hidden" name="'+c+'">',k).val(f.extraData[c]).appendTo(w)[0]));f.iframeTarget||h.appendTo(D),v.attachEvent?v.attachEvent("onload",s):v.addEventListener("load",s,!1),setTimeout(t,15);try{w.submit()}catch(e){document.createElement("form").submit.apply(w)}}finally{w.setAttribute("action",i),w.setAttribute("enctype",o),r?w.setAttribute("target",r):p.removeAttr("target"),e(u).remove()}}function s(t){if(!x.aborted&&!X){if((O=n(v))||(a("cannot access response document"),t=L),t===A&&x)return x.abort("timeout"),void S.reject(x,"timeout");if(t===L&&x)return x.abort("server abort"),void S.reject(x,"error","server abort");if(O&&O.location.href!==f.iframeSrc||T){v.detachEvent?v.detachEvent("onload",s):v.removeEventListener("load",s,!1);var r,i="success";try{if(T)throw"timeout";var o="xml"===f.dataType||O.XMLDocument||e.isXMLDoc(O);if(a("isXml="+o),!o&&window.opera&&(null===O.body||!O.body.innerHTML)&&--C)return a("requeing onLoad callback, DOM not available"),void setTimeout(s,250);var u=O.body?O.body:O.documentElement;x.responseText=u?u.innerHTML:null,x.responseXML=O.XMLDocument?O.XMLDocument:O,o&&(f.dataType="xml"),x.getResponseHeader=function(e){return{"content-type":f.dataType}[e.toLowerCase()]},u&&(x.status=Number(u.getAttribute("status"))||x.status,x.statusText=u.getAttribute("statusText")||x.statusText);var c=(f.dataType||"").toLowerCase(),l=/(json|script|text)/.test(c);if(l||f.textarea){var p=O.getElementsByTagName("textarea")[0];if(p)x.responseText=p.value,x.status=Number(p.getAttribute("status"))||x.status,x.statusText=p.getAttribute("statusText")||x.statusText;else if(l){var m=O.getElementsByTagName("pre")[0],g=O.getElementsByTagName("body")[0];m?x.responseText=m.textContent?m.textContent:m.innerText:g&&(x.responseText=g.textContent?g.textContent:g.innerText)}}else"xml"===c&&!x.responseXML&&x.responseText&&(x.responseXML=q(x.responseText));try{M=N(x,c,f)}catch(e){i="parsererror",x.error=r=e||i}}catch(e){a("error caught: ",e),i="error",x.error=r=e||i}x.aborted&&(a("upload aborted"),i=null),x.status&&(i=x.status>=200&&x.status<300||304===x.status?"success":"error"),"success"===i?(f.success&&f.success.call(f.context,M,"success",x),S.resolve(x.responseText,"success",x),d&&e.event.trigger("ajaxSuccess",[x,f])):i&&(void 0===r&&(r=x.statusText),f.error&&f.error.call(f.context,x,i,r),S.reject(x,"error",r),d&&e.event.trigger("ajaxError",[x,f,r])),d&&e.event.trigger("ajaxComplete",[x,f]),d&&!--e.active&&e.event.trigger("ajaxStop"),f.complete&&f.complete.call(f.context,x,i),X=!0,f.timeout&&clearTimeout(j),setTimeout(function(){f.iframeTarget?h.attr("src",f.iframeSrc):h.remove(),x.responseXML=null},100)}}}var u,c,f,d,m,h,v,x,y,b,T,j,w=p[0],S=e.Deferred();if(S.abort=function(e){x.abort(e)},r)for(c=0;c<g.length;c++)u=e(g[c]),o?u.prop("disabled",!1):u.removeAttr("disabled");(f=e.extend(!0,{},e.ajaxSettings,t)).context=f.context||f,m="jqFormIO"+(new Date).getTime();var k=w.ownerDocument,D=p.closest("body");if(f.iframeTarget?(b=(h=e(f.iframeTarget,k)).attr2("name"))?m=b:h.attr2("name",m):(h=e('<iframe name="'+m+'" src="'+f.iframeSrc+'" />',k)).css({position:"absolute",top:"-1000px",left:"-1000px"}),v=h[0],x={aborted:0,responseText:null,responseXML:null,status:0,statusText:"n/a",getAllResponseHeaders:function(){},getResponseHeader:function(){},setRequestHeader:function(){},abort:function(t){var r="timeout"===t?"timeout":"aborted";a("aborting upload... "+r),this.aborted=1;try{v.contentWindow.document.execCommand&&v.contentWindow.document.execCommand("Stop")}catch(e){}h.attr("src",f.iframeSrc),x.error=r,f.error&&f.error.call(f.context,x,r,t),d&&e.event.trigger("ajaxError",[x,f,r]),f.complete&&f.complete.call(f.context,x,r)}},(d=f.global)&&0==e.active++&&e.event.trigger("ajaxStart"),d&&e.event.trigger("ajaxSend",[x,f]),f.beforeSend&&!1===f.beforeSend.call(f.context,x,f))return f.global&&e.active--,S.reject(),S;if(x.aborted)return S.reject(),S;(y=w.clk)&&(b=y.name)&&!y.disabled&&(f.extraData=f.extraData||{},f.extraData[b]=y.value,"image"===y.type&&(f.extraData[b+".x"]=w.clk_x,f.extraData[b+".y"]=w.clk_y));var A=1,L=2,F=e("meta[name=csrf-token]").attr("content"),E=e("meta[name=csrf-param]").attr("content");E&&F&&(f.extraData=f.extraData||{},f.extraData[E]=F),f.forceSync?i():setTimeout(i,10);var M,O,X,C=50,q=e.parseXML||function(e,t){return window.ActiveXObject?((t=new ActiveXObject("Microsoft.XMLDOM")).async="false",t.loadXML(e)):t=(new DOMParser).parseFromString(e,"text/xml"),t&&t.documentElement&&"parsererror"!==t.documentElement.nodeName?t:null},_=e.parseJSON||function(e){return window.eval("("+e+")")},N=function(t,r,a){var n=t.getResponseHeader("content-type")||"",i=("xml"===r||!r)&&n.indexOf("xml")>=0,o=i?t.responseXML:t.responseText;return i&&"parsererror"===o.documentElement.nodeName&&e.error&&e.error("parsererror"),a&&a.dataFilter&&(o=a.dataFilter(o,r)),"string"==typeof o&&(("json"===r||!r)&&n.indexOf("json")>=0?o=_(o):("script"===r||!r)&&n.indexOf("javascript")>=0&&e.globalEval(o)),o};return S}if(!this.length)return a("ajaxSubmit: skipping submit process - no element selected"),this;var l,f,d,p=this;"function"==typeof t?t={success:t}:"string"==typeof t||!1===t&&arguments.length>0?(t={url:t,data:r,dataType:n},"function"==typeof s&&(t.success=s)):void 0===t&&(t={}),l=t.method||t.type||this.attr2("method"),(d=(d="string"==typeof(f=t.url||this.attr2("action"))?e.trim(f):"")||window.location.href||"")&&(d=(d.match(/^([^#]+)/)||[])[1]),t=e.extend(!0,{url:d,success:e.ajaxSettings.success,type:l||e.ajaxSettings.type,iframeSrc:/^https/i.test(window.location.href||"")?"javascript:false":"about:blank"},t);var m={};if(this.trigger("form-pre-serialize",[this,t,m]),m.veto)return a("ajaxSubmit: submit vetoed via form-pre-serialize trigger"),this;if(t.beforeSerialize&&!1===t.beforeSerialize(this,t))return a("ajaxSubmit: submit aborted via beforeSerialize callback"),this;var h=t.traditional;void 0===h&&(h=e.ajaxSettings.traditional);var v,g=[],x=this.formToArray(t.semantic,g,t.filtering);if(t.data){var y=e.isFunction(t.data)?t.data(x):t.data;t.extraData=y,v=e.param(y,h)}if(t.beforeSubmit&&!1===t.beforeSubmit(x,this,t))return a("ajaxSubmit: submit aborted via beforeSubmit callback"),this;if(this.trigger("form-submit-validate",[x,this,t,m]),m.veto)return a("ajaxSubmit: submit vetoed via form-submit-validate trigger"),this;var b=e.param(x,h);v&&(b=b?b+"&"+v:v),"GET"===t.type.toUpperCase()?(t.url+=(t.url.indexOf("?")>=0?"&":"?")+b,t.data=null):t.data=b;var T=[];if(t.resetForm&&T.push(function(){p.resetForm()}),t.clearForm&&T.push(function(){p.clearForm(t.includeHidden)}),!t.dataType&&t.target){var j=t.success||function(){};T.push(function(r,a,n){var i=arguments,o=t.replaceTarget?"replaceWith":"html";e(t.target)[o](r).each(function(){j.apply(this,i)})})}else t.success&&(e.isArray(t.success)?e.merge(T,t.success):T.push(t.success));if(t.success=function(e,r,a){for(var n=t.context||this,i=0,o=T.length;i<o;i++)T[i].apply(n,[e,r,a||p,p])},t.error){var w=t.error;t.error=function(e,r,a){var n=t.context||this;w.apply(n,[e,r,a,p])}}if(t.complete){var S=t.complete;t.complete=function(e,r){var a=t.context||this;S.apply(a,[e,r,p])}}var k=e("input[type=file]:enabled",this).filter(function(){return""!==e(this).val()}).length>0,D="multipart/form-data",A=p.attr("enctype")===D||p.attr("encoding")===D,L=i.fileapi&&i.formdata;a("fileAPI :"+L);var F,E=(k||A)&&!L;!1!==t.iframe&&(t.iframe||E)?t.closeKeepAlive?e.get(t.closeKeepAlive,function(){F=c(x)}):F=c(x):F=(k||A)&&L?function(r){for(var a=new FormData,n=0;n<r.length;n++)a.append(r[n].name,r[n].value);if(t.extraData){var i=u(t.extraData);for(n=0;n<i.length;n++)i[n]&&a.append(i[n][0],i[n][1])}t.data=null;var o=e.extend(!0,{},e.ajaxSettings,t,{contentType:!1,processData:!1,cache:!1,type:l||"POST"});t.uploadProgress&&(o.xhr=function(){var r=e.ajaxSettings.xhr();return r.upload&&r.upload.addEventListener("progress",function(e){var r=0,a=e.loaded||e.position,n=e.total;e.lengthComputable&&(r=Math.ceil(a/n*100)),t.uploadProgress(e,a,n,r)},!1),r}),o.data=null;var s=o.beforeSend;return o.beforeSend=function(e,r){t.formData?r.data=t.formData:r.data=a,s&&s.call(this,e,r)},e.ajax(o)}(x):e.ajax(t),p.removeData("jqxhr").data("jqxhr",F);for(var M=0;M<g.length;M++)g[M]=null;return this.trigger("form-submit-notify",[this,t]),this},e.fn.ajaxForm=function(n,i,o,s){if(("string"==typeof n||!1===n&&arguments.length>0)&&(n={url:n,data:i,dataType:o},"function"==typeof s&&(n.success=s)),n=n||{},n.delegation=n.delegation&&e.isFunction(e.fn.on),!n.delegation&&0===this.length){var u={s:this.selector,c:this.context};return!e.isReady&&u.s?(a("DOM not ready, queuing ajaxForm"),e(function(){e(u.s,u.c).ajaxForm(n)}),this):(a("terminating; zero elements found by selector"+(e.isReady?"":" (DOM not ready)")),this)}return n.delegation?(e(document).off("submit.form-plugin",this.selector,t).off("click.form-plugin",this.selector,r).on("submit.form-plugin",this.selector,n,t).on("click.form-plugin",this.selector,n,r),this):this.ajaxFormUnbind().on("submit.form-plugin",n,t).on("click.form-plugin",n,r)},e.fn.ajaxFormUnbind=function(){return this.off("submit.form-plugin click.form-plugin")},e.fn.formToArray=function(t,r,a){var n=[];if(0===this.length)return n;var o,s=this[0],u=this.attr("id"),c=t||void 0===s.elements?s.getElementsByTagName("*"):s.elements;if(c&&(c=e.makeArray(c)),u&&(t||/(Edge|Trident)\//.test(navigator.userAgent))&&(o=e(':input[form="'+u+'"]').get()).length&&(c=(c||[]).concat(o)),!c||!c.length)return n;e.isFunction(a)&&(c=e.map(c,a));var l,f,d,p,m,h,v;for(l=0,h=c.length;l<h;l++)if(m=c[l],(d=m.name)&&!m.disabled)if(t&&s.clk&&"image"===m.type)s.clk===m&&(n.push({name:d,value:e(m).val(),type:m.type}),n.push({name:d+".x",value:s.clk_x},{name:d+".y",value:s.clk_y}));else if((p=e.fieldValue(m,!0))&&p.constructor===Array)for(r&&r.push(m),f=0,v=p.length;f<v;f++)n.push({name:d,value:p[f]});else if(i.fileapi&&"file"===m.type){r&&r.push(m);var g=m.files;if(g.length)for(f=0;f<g.length;f++)n.push({name:d,value:g[f],type:m.type});else n.push({name:d,value:"",type:m.type})}else null!==p&&void 0!==p&&(r&&r.push(m),n.push({name:d,value:p,type:m.type,required:m.required}));if(!t&&s.clk){var x=e(s.clk),y=x[0];(d=y.name)&&!y.disabled&&"image"===y.type&&(n.push({name:d,value:x.val()}),n.push({name:d+".x",value:s.clk_x},{name:d+".y",value:s.clk_y}))}return n},e.fn.formSerialize=function(t){return e.param(this.formToArray(t))},e.fn.fieldSerialize=function(t){var r=[];return this.each(function(){var a=this.name;if(a){var n=e.fieldValue(this,t);if(n&&n.constructor===Array)for(var i=0,o=n.length;i<o;i++)r.push({name:a,value:n[i]});else null!==n&&void 0!==n&&r.push({name:this.name,value:n})}}),e.param(r)},e.fn.fieldValue=function(t){for(var r=[],a=0,n=this.length;a<n;a++){var i=this[a],o=e.fieldValue(i,t);null===o||void 0===o||o.constructor===Array&&!o.length||(o.constructor===Array?e.merge(r,o):r.push(o))}return r},e.fieldValue=function(t,r){var a=t.name,i=t.type,o=t.tagName.toLowerCase();if(void 0===r&&(r=!0),r&&(!a||t.disabled||"reset"===i||"button"===i||("checkbox"===i||"radio"===i)&&!t.checked||("submit"===i||"image"===i)&&t.form&&t.form.clk!==t||"select"===o&&-1===t.selectedIndex))return null;if("select"===o){var s=t.selectedIndex;if(s<0)return null;for(var u=[],c=t.options,l="select-one"===i,f=l?s+1:c.length,d=l?s:0;d<f;d++){var p=c[d];if(p.selected&&!p.disabled){var m=p.value;if(m||(m=p.attributes&&p.attributes.value&&!p.attributes.value.specified?p.text:p.value),l)return m;u.push(m)}}return u}return e(t).val().replace(n,"\r\n")},e.fn.clearForm=function(t){return this.each(function(){e("input,select,textarea",this).clearFields(t)})},e.fn.clearFields=e.fn.clearInputs=function(t){var r=/^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i;return this.each(function(){var a=this.type,n=this.tagName.toLowerCase();r.test(a)||"textarea"===n?this.value="":"checkbox"===a||"radio"===a?this.checked=!1:"select"===n?this.selectedIndex=-1:"file"===a?/MSIE/.test(navigator.userAgent)?e(this).replaceWith(e(this).clone(!0)):e(this).val(""):t&&(!0===t&&/hidden/.test(a)||"string"==typeof t&&e(this).is(t))&&(this.value="")})},e.fn.resetForm=function(){return this.each(function(){var t=e(this),r=this.tagName.toLowerCase();switch(r){case"input":this.checked=this.defaultChecked;case"textarea":return this.value=this.defaultValue,!0;case"option":case"optgroup":var a=t.parents("select");return a.length&&a[0].multiple?"option"===r?this.selected=this.defaultSelected:t.find("option").resetForm():a.resetForm(),!0;case"select":return t.find("option").each(function(e){if(this.selected=this.defaultSelected,this.defaultSelected&&!t[0].multiple)return t[0].selectedIndex=e,!1}),!0;case"label":var n=e(t.attr("for")),i=t.find("input,select,textarea");return n[0]&&i.unshift(n[0]),i.resetForm(),!0;case"form":return("function"==typeof this.reset||"object"==typeof this.reset&&!this.reset.nodeType)&&this.reset(),!0;default:return t.find("form,input,label,select,textarea").resetForm(),!0}})},e.fn.enable=function(e){return void 0===e&&(e=!0),this.each(function(){this.disabled=!e})},e.fn.selected=function(t){return void 0===t&&(t=!0),this.each(function(){var r=this.type;if("checkbox"===r||"radio"===r)this.checked=t;else if("option"===this.tagName.toLowerCase()){var a=e(this).parent("select");t&&a[0]&&"select-one"===a[0].type&&a.find("option").selected(!1),this.selected=t}})},e.fn.ajaxSubmit.debug=!1});
+
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+Drupal.debounce = function (func, wait, immediate) {
+  var timeout = void 0;
+  var result = void 0;
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var context = this;
+    var later = function later() {
+      timeout = null;
+      if (!immediate) {
+        result = func.apply(context, args);
+      }
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) {
+      result = func.apply(context, args);
+    }
+    return result;
+  };
+};;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, debounce) {
+  $.fn.drupalGetSummary = function () {
+    var callback = this.data('summaryCallback');
+    return this[0] && callback ? $.trim(callback(this[0])) : '';
+  };
+
+  $.fn.drupalSetSummary = function (callback) {
+    var self = this;
+
+    if (typeof callback !== 'function') {
+      var val = callback;
+      callback = function callback() {
+        return val;
+      };
+    }
+
+    return this.data('summaryCallback', callback).off('formUpdated.summary').on('formUpdated.summary', function () {
+      self.trigger('summaryUpdated');
+    }).trigger('summaryUpdated');
+  };
+
+  Drupal.behaviors.formSingleSubmit = {
+    attach: function attach() {
+      function onFormSubmit(e) {
+        var $form = $(e.currentTarget);
+        var formValues = $form.serialize();
+        var previousValues = $form.attr('data-drupal-form-submit-last');
+        if (previousValues === formValues) {
+          e.preventDefault();
+        } else {
+          $form.attr('data-drupal-form-submit-last', formValues);
+        }
+      }
+
+      $('body').once('form-single-submit').on('submit.singleSubmit', 'form:not([method~="GET"])', onFormSubmit);
+    }
+  };
+
+  function triggerFormUpdated(element) {
+    $(element).trigger('formUpdated');
+  }
+
+  function fieldsList(form) {
+    var $fieldList = $(form).find('[name]').map(function (index, element) {
+      return element.getAttribute('id');
+    });
+
+    return $.makeArray($fieldList);
+  }
+
+  Drupal.behaviors.formUpdated = {
+    attach: function attach(context) {
+      var $context = $(context);
+      var contextIsForm = $context.is('form');
+      var $forms = (contextIsForm ? $context : $context.find('form')).once('form-updated');
+      var formFields = void 0;
+
+      if ($forms.length) {
+        $.makeArray($forms).forEach(function (form) {
+          var events = 'change.formUpdated input.formUpdated ';
+          var eventHandler = debounce(function (event) {
+            triggerFormUpdated(event.target);
+          }, 300);
+          formFields = fieldsList(form).join(',');
+
+          form.setAttribute('data-drupal-form-fields', formFields);
+          $(form).on(events, eventHandler);
+        });
+      }
+
+      if (contextIsForm) {
+        formFields = fieldsList(context).join(',');
+
+        var currentFields = $(context).attr('data-drupal-form-fields');
+
+        if (formFields !== currentFields) {
+          triggerFormUpdated(context);
+        }
+      }
+    },
+    detach: function detach(context, settings, trigger) {
+      var $context = $(context);
+      var contextIsForm = $context.is('form');
+      if (trigger === 'unload') {
+        var $forms = (contextIsForm ? $context : $context.find('form')).removeOnce('form-updated');
+        if ($forms.length) {
+          $.makeArray($forms).forEach(function (form) {
+            form.removeAttribute('data-drupal-form-fields');
+            $(form).off('.formUpdated');
+          });
+        }
+      }
+    }
+  };
+
+  Drupal.behaviors.fillUserInfoFromBrowser = {
+    attach: function attach(context, settings) {
+      var userInfo = ['name', 'mail', 'homepage'];
+      var $forms = $('[data-user-info-from-browser]').once('user-info-from-browser');
+      if ($forms.length) {
+        userInfo.forEach(function (info) {
+          var $element = $forms.find('[name=' + info + ']');
+          var browserData = localStorage.getItem('Drupal.visitor.' + info);
+          var emptyOrDefault = $element.val() === '' || $element.attr('data-drupal-default-value') === $element.val();
+          if ($element.length && emptyOrDefault && browserData) {
+            $element.val(browserData);
+          }
+        });
+      }
+      $forms.on('submit', function () {
+        userInfo.forEach(function (info) {
+          var $element = $forms.find('[name=' + info + ']');
+          if ($element.length) {
+            localStorage.setItem('Drupal.visitor.' + info, $element.val());
+          }
+        });
+      });
+    }
+  };
+
+  var handleFragmentLinkClickOrHashChange = function handleFragmentLinkClickOrHashChange(e) {
+    var url = void 0;
+    if (e.type === 'click') {
+      url = e.currentTarget.location ? e.currentTarget.location : e.currentTarget;
+    } else {
+      url = window.location;
+    }
+    var hash = url.hash.substr(1);
+    if (hash) {
+      var $target = $('#' + hash);
+      $('body').trigger('formFragmentLinkClickOrHashChange', [$target]);
+
+      setTimeout(function () {
+        return $target.trigger('focus');
+      }, 300);
+    }
+  };
+
+  var debouncedHandleFragmentLinkClickOrHashChange = debounce(handleFragmentLinkClickOrHashChange, 300, true);
+
+  $(window).on('hashchange.form-fragment', debouncedHandleFragmentLinkClickOrHashChange);
+
+  $(document).on('click.form-fragment', 'a[href*="#"]', debouncedHandleFragmentLinkClickOrHashChange);
+})(jQuery, Drupal, Drupal.debounce);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  Drupal.behaviors.detailsAria = {
+    attach: function attach() {
+      $('body').once('detailsAria').on('click.detailsAria', 'summary', function (event) {
+        var $summary = $(event.currentTarget);
+        var open = $(event.currentTarget.parentNode).attr('open') === 'open' ? 'false' : 'true';
+
+        $summary.attr({
+          'aria-expanded': open,
+          'aria-pressed': open
+        });
+      });
+    }
+  };
+})(jQuery, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Modernizr, Drupal) {
+  function CollapsibleDetails(node) {
+    this.$node = $(node);
+    this.$node.data('details', this);
+
+    var anchor = window.location.hash && window.location.hash !== '#' ? ', ' + window.location.hash : '';
+    if (this.$node.find('.error' + anchor).length) {
+      this.$node.attr('open', true);
+    }
+
+    this.setupSummary();
+
+    this.setupLegend();
+  }
+
+  $.extend(CollapsibleDetails, {
+    instances: []
+  });
+
+  $.extend(CollapsibleDetails.prototype, {
+    setupSummary: function setupSummary() {
+      this.$summary = $('<span class="summary"></span>');
+      this.$node.on('summaryUpdated', $.proxy(this.onSummaryUpdated, this)).trigger('summaryUpdated');
+    },
+    setupLegend: function setupLegend() {
+      var $legend = this.$node.find('> summary');
+
+      $('<span class="details-summary-prefix visually-hidden"></span>').append(this.$node.attr('open') ? Drupal.t('Hide') : Drupal.t('Show')).prependTo($legend).after(document.createTextNode(' '));
+
+      $('<a class="details-title"></a>').attr('href', '#' + this.$node.attr('id')).prepend($legend.contents()).appendTo($legend);
+
+      $legend.append(this.$summary).on('click', $.proxy(this.onLegendClick, this));
+    },
+    onLegendClick: function onLegendClick(e) {
+      this.toggle();
+      e.preventDefault();
+    },
+    onSummaryUpdated: function onSummaryUpdated() {
+      var text = $.trim(this.$node.drupalGetSummary());
+      this.$summary.html(text ? ' (' + text + ')' : '');
+    },
+    toggle: function toggle() {
+      var _this = this;
+
+      var isOpen = !!this.$node.attr('open');
+      var $summaryPrefix = this.$node.find('> summary span.details-summary-prefix');
+      if (isOpen) {
+        $summaryPrefix.html(Drupal.t('Show'));
+      } else {
+        $summaryPrefix.html(Drupal.t('Hide'));
+      }
+
+      setTimeout(function () {
+        _this.$node.attr('open', !isOpen);
+      }, 0);
+    }
+  });
+
+  Drupal.behaviors.collapse = {
+    attach: function attach(context) {
+      if (Modernizr.details) {
+        return;
+      }
+      var $collapsibleDetails = $(context).find('details').once('collapse').addClass('collapse-processed');
+      if ($collapsibleDetails.length) {
+        for (var i = 0; i < $collapsibleDetails.length; i++) {
+          CollapsibleDetails.instances.push(new CollapsibleDetails($collapsibleDetails[i]));
+        }
+      }
+    }
+  };
+
+  var handleFragmentLinkClickOrHashChange = function handleFragmentLinkClickOrHashChange(e, $target) {
+    $target.parents('details').not('[open]').find('> summary').trigger('click');
+  };
+
+  $('body').on('formFragmentLinkClickOrHashChange.details', handleFragmentLinkClickOrHashChange);
+
+  Drupal.CollapsibleDetails = CollapsibleDetails;
+})(jQuery, Modernizr, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, window) {
+  function TableResponsive(table) {
+    this.table = table;
+    this.$table = $(table);
+    this.showText = Drupal.t('Show all columns');
+    this.hideText = Drupal.t('Hide lower priority columns');
+
+    this.$headers = this.$table.find('th');
+
+    this.$link = $('<button type="button" class="link tableresponsive-toggle"></button>').attr('title', Drupal.t('Show table cells that were hidden to make the table fit within a small screen.')).on('click', $.proxy(this, 'eventhandlerToggleColumns'));
+
+    this.$table.before($('<div class="tableresponsive-toggle-columns"></div>').append(this.$link));
+
+    $(window).on('resize.tableresponsive', $.proxy(this, 'eventhandlerEvaluateColumnVisibility')).trigger('resize.tableresponsive');
+  }
+
+  Drupal.behaviors.tableResponsive = {
+    attach: function attach(context, settings) {
+      var $tables = $(context).find('table.responsive-enabled').once('tableresponsive');
+      if ($tables.length) {
+        var il = $tables.length;
+        for (var i = 0; i < il; i++) {
+          TableResponsive.tables.push(new TableResponsive($tables[i]));
+        }
+      }
+    }
+  };
+
+  $.extend(TableResponsive, {
+    tables: []
+  });
+
+  $.extend(TableResponsive.prototype, {
+    eventhandlerEvaluateColumnVisibility: function eventhandlerEvaluateColumnVisibility(e) {
+      var pegged = parseInt(this.$link.data('pegged'), 10);
+      var hiddenLength = this.$headers.filter('.priority-medium:hidden, .priority-low:hidden').length;
+
+      if (hiddenLength > 0) {
+        this.$link.show().text(this.showText);
+      }
+
+      if (!pegged && hiddenLength === 0) {
+        this.$link.hide().text(this.hideText);
+      }
+    },
+    eventhandlerToggleColumns: function eventhandlerToggleColumns(e) {
+      e.preventDefault();
+      var self = this;
+      var $hiddenHeaders = this.$headers.filter('.priority-medium:hidden, .priority-low:hidden');
+      this.$revealedCells = this.$revealedCells || $();
+
+      if ($hiddenHeaders.length > 0) {
+        $hiddenHeaders.each(function (index, element) {
+          var $header = $(this);
+          var position = $header.prevAll('th').length;
+          self.$table.find('tbody tr').each(function () {
+            var $cells = $(this).find('td').eq(position);
+            $cells.show();
+
+            self.$revealedCells = $().add(self.$revealedCells).add($cells);
+          });
+          $header.show();
+
+          self.$revealedCells = $().add(self.$revealedCells).add($header);
+        });
+        this.$link.text(this.hideText).data('pegged', 1);
+      } else {
+          this.$revealedCells.hide();
+
+          this.$revealedCells.each(function (index, element) {
+            var $cell = $(this);
+            var properties = $cell.attr('style').split(';');
+            var newProps = [];
+
+            var match = /^display\s*:\s*none$/;
+            for (var i = 0; i < properties.length; i++) {
+              var prop = properties[i];
+              prop.trim();
+
+              var isDisplayNone = match.exec(prop);
+              if (isDisplayNone) {
+                continue;
+              }
+              newProps.push(prop);
+            }
+
+            $cell.attr('style', newProps.join(';'));
+          });
+          this.$link.text(this.showText).data('pegged', 0);
+
+          $(window).trigger('resize.tableresponsive');
+        }
+    }
+  });
+
+  Drupal.TableResponsive = TableResponsive;
+})(jQuery, Drupal, window);;
+window.matchMedia||(window.matchMedia=function(){"use strict";var e=window.styleMedia||window.media;if(!e){var t=document.createElement("style"),i=document.getElementsByTagName("script")[0],n=null;t.type="text/css";t.id="matchmediajs-test";i.parentNode.insertBefore(t,i);n="getComputedStyle"in window&&window.getComputedStyle(t,null)||t.currentStyle;e={matchMedium:function(e){var i="@media "+e+"{ #matchmediajs-test { width: 1px; } }";if(t.styleSheet){t.styleSheet.cssText=i}else{t.textContent=i}return n.width==="1px"}}}return function(t){return{matches:e.matchMedium(t||"all"),media:t||"all"}}}());
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  function init(i, tab) {
+    var $tab = $(tab);
+    var $target = $tab.find('[data-drupal-nav-tabs-target]');
+    var isCollapsible = $tab.hasClass('is-collapsible');
+
+    function openMenu(e) {
+      $target.toggleClass('is-open');
+    }
+
+    function handleResize(e) {
+      $tab.addClass('is-horizontal');
+      var $tabs = $tab.find('.tabs');
+      var isHorizontal = $tabs.outerHeight() <= $tabs.find('.tabs__tab').outerHeight();
+      $tab.toggleClass('is-horizontal', isHorizontal);
+      if (isCollapsible) {
+        $tab.toggleClass('is-collapse-enabled', !isHorizontal);
+      }
+      if (isHorizontal) {
+        $target.removeClass('is-open');
+      }
+    }
+
+    $tab.addClass('position-container is-horizontal-enabled');
+
+    $tab.on('click.tabs', '[data-drupal-nav-tabs-trigger]', openMenu);
+    $(window).on('resize.tabs', Drupal.debounce(handleResize, 150)).trigger('resize.tabs');
+  }
+
+  Drupal.behaviors.navTabs = {
+    attach: function attach(context, settings) {
+      var $tabs = $(context).find('[data-drupal-nav-tabs]');
+      if ($tabs.length) {
+        var notSmartPhone = window.matchMedia('(min-width: 300px)');
+        if (notSmartPhone.matches) {
+          $tabs.once('nav-tabs').each(init);
+        }
+      }
+    }
+  };
+})(jQuery, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, debounce) {
+  var liveElement = void 0;
+  var announcements = [];
+
+  Drupal.behaviors.drupalAnnounce = {
+    attach: function attach(context) {
+      if (!liveElement) {
+        liveElement = document.createElement('div');
+        liveElement.id = 'drupal-live-announce';
+        liveElement.className = 'visually-hidden';
+        liveElement.setAttribute('aria-live', 'polite');
+        liveElement.setAttribute('aria-busy', 'false');
+        document.body.appendChild(liveElement);
+      }
+    }
+  };
+
+  function announce() {
+    var text = [];
+    var priority = 'polite';
+    var announcement = void 0;
+
+    var il = announcements.length;
+    for (var i = 0; i < il; i++) {
+      announcement = announcements.pop();
+      text.unshift(announcement.text);
+
+      if (announcement.priority === 'assertive') {
+        priority = 'assertive';
+      }
+    }
+
+    if (text.length) {
+      liveElement.innerHTML = '';
+
+      liveElement.setAttribute('aria-busy', 'true');
+
+      liveElement.setAttribute('aria-live', priority);
+
+      liveElement.innerHTML = text.join('\n');
+
+      liveElement.setAttribute('aria-busy', 'false');
+    }
+  }
+
+  Drupal.announce = function (text, priority) {
+    announcements.push({
+      text: text,
+      priority: priority
+    });
+
+    return debounce(announce, 200)();
+  };
+})(Drupal, Drupal.debounce);;
+(function(){if(window.matchMedia&&window.matchMedia("all").addListener){return false}var e=window.matchMedia,i=e("only all").matches,n=false,t=0,a=[],r=function(i){clearTimeout(t);t=setTimeout(function(){for(var i=0,n=a.length;i<n;i++){var t=a[i].mql,r=a[i].listeners||[],o=e(t.media).matches;if(o!==t.matches){t.matches=o;for(var s=0,l=r.length;s<l;s++){r[s].call(window,t)}}}},30)};window.matchMedia=function(t){var o=e(t),s=[],l=0;o.addListener=function(e){if(!i){return}if(!n){n=true;window.addEventListener("resize",r,true)}if(l===0){l=a.push({mql:o,listeners:s})}s.push(e)};o.removeListener=function(e){for(var i=0,n=s.length;i<n;i++){if(s[i]===e){s.splice(i,1)}}};return o}})();
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, debounce) {
+  var offsets = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  };
+
+  function getRawOffset(el, edge) {
+    var $el = $(el);
+    var documentElement = document.documentElement;
+    var displacement = 0;
+    var horizontal = edge === 'left' || edge === 'right';
+
+    var placement = $el.offset()[horizontal ? 'left' : 'top'];
+
+    placement -= window['scroll' + (horizontal ? 'X' : 'Y')] || document.documentElement['scroll' + (horizontal ? 'Left' : 'Top')] || 0;
+
+    switch (edge) {
+      case 'top':
+        displacement = placement + $el.outerHeight();
+        break;
+
+      case 'left':
+        displacement = placement + $el.outerWidth();
+        break;
+
+      case 'bottom':
+        displacement = documentElement.clientHeight - placement;
+        break;
+
+      case 'right':
+        displacement = documentElement.clientWidth - placement;
+        break;
+
+      default:
+        displacement = 0;
+    }
+    return displacement;
+  }
+
+  function calculateOffset(edge) {
+    var edgeOffset = 0;
+    var displacingElements = document.querySelectorAll('[data-offset-' + edge + ']');
+    var n = displacingElements.length;
+    for (var i = 0; i < n; i++) {
+      var el = displacingElements[i];
+
+      if (el.style.display === 'none') {
+        continue;
+      }
+
+      var displacement = parseInt(el.getAttribute('data-offset-' + edge), 10);
+
+      if (isNaN(displacement)) {
+        displacement = getRawOffset(el, edge);
+      }
+
+      edgeOffset = Math.max(edgeOffset, displacement);
+    }
+
+    return edgeOffset;
+  }
+
+  function calculateOffsets() {
+    return {
+      top: calculateOffset('top'),
+      right: calculateOffset('right'),
+      bottom: calculateOffset('bottom'),
+      left: calculateOffset('left')
+    };
+  }
+
+  function displace(broadcast) {
+    offsets = calculateOffsets();
+    Drupal.displace.offsets = offsets;
+    if (typeof broadcast === 'undefined' || broadcast) {
+      $(document).trigger('drupalViewportOffsetChange', offsets);
+    }
+    return offsets;
+  }
+
+  Drupal.behaviors.drupalDisplace = {
+    attach: function attach() {
+      if (this.displaceProcessed) {
+        return;
+      }
+      this.displaceProcessed = true;
+
+      $(window).on('resize.drupalDisplace', debounce(displace, 200));
+    }
+  };
+
+  Drupal.displace = displace;
+  $.extend(Drupal.displace, {
+    offsets: offsets,
+
+    calculateOffset: calculateOffset
+  });
+})(jQuery, Drupal, Drupal.debounce);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var activeItem = Drupal.url(drupalSettings.path.currentPath);
+
+  $.fn.drupalToolbarMenu = function () {
+    var ui = {
+      handleOpen: Drupal.t('Extend'),
+      handleClose: Drupal.t('Collapse')
+    };
+
+    function toggleList($item, switcher) {
+      var $toggle = $item.children('.toolbar-box').children('.toolbar-handle');
+      switcher = typeof switcher !== 'undefined' ? switcher : !$item.hasClass('open');
+
+      $item.toggleClass('open', switcher);
+
+      $toggle.toggleClass('open', switcher);
+
+      $toggle.find('.action').text(switcher ? ui.handleClose : ui.handleOpen);
+    }
+
+    function toggleClickHandler(event) {
+      var $toggle = $(event.target);
+      var $item = $toggle.closest('li');
+
+      toggleList($item);
+
+      var $openItems = $item.siblings().filter('.open');
+      toggleList($openItems, false);
+    }
+
+    function linkClickHandler(event) {
+      if (!Drupal.toolbar.models.toolbarModel.get('isFixed')) {
+        Drupal.toolbar.models.toolbarModel.set('activeTab', null);
+      }
+
+      event.stopPropagation();
+    }
+
+    function initItems($menu) {
+      var options = {
+        class: 'toolbar-icon toolbar-handle',
+        action: ui.handleOpen,
+        text: ''
+      };
+
+      $menu.find('li > a').wrap('<div class="toolbar-box">');
+
+      $menu.find('li').each(function (index, element) {
+        var $item = $(element);
+        if ($item.children('ul.toolbar-menu').length) {
+          var $box = $item.children('.toolbar-box');
+          options.text = Drupal.t('@label', {
+            '@label': $box.find('a').text()
+          });
+          $item.children('.toolbar-box').append(Drupal.theme('toolbarMenuItemToggle', options));
+        }
+      });
+    }
+
+    function markListLevels($lists, level) {
+      level = !level ? 1 : level;
+      var $lis = $lists.children('li').addClass('level-' + level);
+      $lists = $lis.children('ul');
+      if ($lists.length) {
+        markListLevels($lists, level + 1);
+      }
+    }
+
+    function openActiveItem($menu) {
+      var pathItem = $menu.find('a[href="' + window.location.pathname + '"]');
+      if (pathItem.length && !activeItem) {
+        activeItem = window.location.pathname;
+      }
+      if (activeItem) {
+        var $activeItem = $menu.find('a[href="' + activeItem + '"]').addClass('menu-item--active');
+        var $activeTrail = $activeItem.parentsUntil('.root', 'li').addClass('menu-item--active-trail');
+        toggleList($activeTrail, true);
+      }
+    }
+
+    return this.each(function (selector) {
+      var $menu = $(this).once('toolbar-menu');
+      if ($menu.length) {
+        $menu.on('click.toolbar', '.toolbar-box', toggleClickHandler).on('click.toolbar', '.toolbar-box a', linkClickHandler);
+
+        $menu.addClass('root');
+        initItems($menu);
+        markListLevels($menu);
+
+        openActiveItem($menu);
+      }
+    });
+  };
+
+  Drupal.theme.toolbarMenuItemToggle = function (options) {
+    return '<button class="' + options.class + '"><span class="action">' + options.action + '</span> <span class="label">' + options.text + '</span></button>';
+  };
+})(jQuery, Drupal, drupalSettings);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var options = $.extend({
+    breakpoints: {
+      'toolbar.narrow': '',
+      'toolbar.standard': '',
+      'toolbar.wide': ''
+    }
+  }, drupalSettings.toolbar, {
+    strings: {
+      horizontal: Drupal.t('Horizontal orientation'),
+      vertical: Drupal.t('Vertical orientation')
+    }
+  });
+
+  Drupal.behaviors.toolbar = {
+    attach: function attach(context) {
+      if (!window.matchMedia('only screen').matches) {
+        return;
+      }
+
+      $(context).find('#toolbar-administration').once('toolbar').each(function () {
+        var model = new Drupal.toolbar.ToolbarModel({
+          locked: JSON.parse(localStorage.getItem('Drupal.toolbar.trayVerticalLocked')),
+          activeTab: document.getElementById(JSON.parse(localStorage.getItem('Drupal.toolbar.activeTabID'))),
+          height: $('#toolbar-administration').outerHeight()
+        });
+
+        Drupal.toolbar.models.toolbarModel = model;
+
+        Object.keys(options.breakpoints).forEach(function (label) {
+          var mq = options.breakpoints[label];
+          var mql = window.matchMedia(mq);
+          Drupal.toolbar.mql[label] = mql;
+
+          mql.addListener(Drupal.toolbar.mediaQueryChangeHandler.bind(null, model, label));
+
+          Drupal.toolbar.mediaQueryChangeHandler.call(null, model, label, mql);
+        });
+
+        Drupal.toolbar.views.toolbarVisualView = new Drupal.toolbar.ToolbarVisualView({
+          el: this,
+          model: model,
+          strings: options.strings
+        });
+        Drupal.toolbar.views.toolbarAuralView = new Drupal.toolbar.ToolbarAuralView({
+          el: this,
+          model: model,
+          strings: options.strings
+        });
+        Drupal.toolbar.views.bodyVisualView = new Drupal.toolbar.BodyVisualView({
+          el: this,
+          model: model
+        });
+
+        model.trigger('change:isFixed', model, model.get('isFixed'));
+        model.trigger('change:activeTray', model, model.get('activeTray'));
+
+        var menuModel = new Drupal.toolbar.MenuModel();
+        Drupal.toolbar.models.menuModel = menuModel;
+        Drupal.toolbar.views.menuVisualView = new Drupal.toolbar.MenuVisualView({
+          el: $(this).find('.toolbar-menu-administration').get(0),
+          model: menuModel,
+          strings: options.strings
+        });
+
+        Drupal.toolbar.setSubtrees.done(function (subtrees) {
+          menuModel.set('subtrees', subtrees);
+          var theme = drupalSettings.ajaxPageState.theme;
+          localStorage.setItem('Drupal.toolbar.subtrees.' + theme, JSON.stringify(subtrees));
+
+          model.set('areSubtreesLoaded', true);
+        });
+
+        Drupal.toolbar.views.toolbarVisualView.loadSubtrees();
+
+        $(document).on('drupalViewportOffsetChange.toolbar', function (event, offsets) {
+          model.set('offsets', offsets);
+        });
+
+        model.on('change:orientation', function (model, orientation) {
+          $(document).trigger('drupalToolbarOrientationChange', orientation);
+        }).on('change:activeTab', function (model, tab) {
+          $(document).trigger('drupalToolbarTabChange', tab);
+        }).on('change:activeTray', function (model, tray) {
+          $(document).trigger('drupalToolbarTrayChange', tray);
+        });
+
+        if (Drupal.toolbar.models.toolbarModel.get('orientation') === 'horizontal' && Drupal.toolbar.models.toolbarModel.get('activeTab') === null) {
+          Drupal.toolbar.models.toolbarModel.set({
+            activeTab: $('.toolbar-bar .toolbar-tab:not(.home-toolbar-tab) a').get(0)
+          });
+        }
+
+        $(window).on({
+          'dialog:aftercreate': function dialogAftercreate(event, dialog, $element, settings) {
+            var $toolbar = $('#toolbar-bar');
+            $toolbar.css('margin-top', '0');
+
+            if (settings.drupalOffCanvasPosition === 'top') {
+              var height = Drupal.offCanvas.getContainer($element).outerHeight();
+              $toolbar.css('margin-top', height + 'px');
+
+              $element.on('dialogContentResize.off-canvas', function () {
+                var newHeight = Drupal.offCanvas.getContainer($element).outerHeight();
+                $toolbar.css('margin-top', newHeight + 'px');
+              });
+            }
+          },
+          'dialog:beforeclose': function dialogBeforeclose() {
+            $('#toolbar-bar').css('margin-top', '0');
+          }
+        });
+      });
+    }
+  };
+
+  Drupal.toolbar = {
+    views: {},
+
+    models: {},
+
+    mql: {},
+
+    setSubtrees: new $.Deferred(),
+
+    mediaQueryChangeHandler: function mediaQueryChangeHandler(model, label, mql) {
+      switch (label) {
+        case 'toolbar.narrow':
+          model.set({
+            isOriented: mql.matches,
+            isTrayToggleVisible: false
+          });
+
+          if (!mql.matches || !model.get('orientation')) {
+            model.set({ orientation: 'vertical' }, { validate: true });
+          }
+          break;
+
+        case 'toolbar.standard':
+          model.set({
+            isFixed: mql.matches
+          });
+          break;
+
+        case 'toolbar.wide':
+          model.set({
+            orientation: mql.matches && !model.get('locked') ? 'horizontal' : 'vertical'
+          }, { validate: true });
+
+          model.set({
+            isTrayToggleVisible: mql.matches
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+  };
+
+  Drupal.theme.toolbarOrientationToggle = function () {
+    return '<div class="toolbar-toggle-orientation"><div class="toolbar-lining">' + '<button class="toolbar-icon" type="button"></button>' + '</div></div>';
+  };
+
+  Drupal.AjaxCommands.prototype.setToolbarSubtrees = function (ajax, response, status) {
+    Drupal.toolbar.setSubtrees.resolve(response.subtrees);
+  };
+})(jQuery, Drupal, drupalSettings);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.MenuModel = Backbone.Model.extend({
+    defaults: {
+      subtrees: {}
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.ToolbarModel = Backbone.Model.extend({
+    defaults: {
+      activeTab: null,
+
+      activeTray: null,
+
+      isOriented: false,
+
+      isFixed: false,
+
+      areSubtreesLoaded: false,
+
+      isViewportOverflowConstrained: false,
+
+      orientation: 'horizontal',
+
+      locked: false,
+
+      isTrayToggleVisible: true,
+
+      height: null,
+
+      offsets: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    },
+
+    validate: function validate(attributes, options) {
+      if (attributes.orientation === 'horizontal' && this.get('locked') && !options.override) {
+        return Drupal.t('The toolbar cannot be set to a horizontal orientation when it is locked.');
+      }
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone) {
+  Drupal.toolbar.BodyVisualView = Backbone.View.extend({
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change:activeTray ', this.render);
+      this.listenTo(this.model, 'change:isFixed change:isViewportOverflowConstrained', this.isToolbarFixed);
+    },
+    isToolbarFixed: function isToolbarFixed() {
+      var isViewportOverflowConstrained = this.model.get('isViewportOverflowConstrained');
+      $('body').toggleClass('toolbar-fixed', isViewportOverflowConstrained || this.model.get('isFixed'));
+    },
+    render: function render() {
+      $('body').toggleClass('toolbar-tray-open', !!this.model.get('activeTray'));
+    }
+  });
+})(jQuery, Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Backbone, Drupal) {
+  Drupal.toolbar.MenuVisualView = Backbone.View.extend({
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change:subtrees', this.render);
+    },
+    render: function render() {
+      var _this = this;
+
+      var subtrees = this.model.get('subtrees');
+
+      Object.keys(subtrees || {}).forEach(function (id) {
+        _this.$el.find('#toolbar-link-' + id).once('toolbar-subtrees').after(subtrees[id]);
+      });
+
+      if ('drupalToolbarMenu' in $.fn) {
+        this.$el.children('.toolbar-menu').drupalToolbarMenu();
+      }
+    }
+  });
+})(jQuery, Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Backbone, Drupal) {
+  Drupal.toolbar.ToolbarAuralView = Backbone.View.extend({
+    initialize: function initialize(options) {
+      this.strings = options.strings;
+
+      this.listenTo(this.model, 'change:orientation', this.onOrientationChange);
+      this.listenTo(this.model, 'change:activeTray', this.onActiveTrayChange);
+    },
+    onOrientationChange: function onOrientationChange(model, orientation) {
+      Drupal.announce(Drupal.t('Tray orientation changed to @orientation.', {
+        '@orientation': orientation
+      }));
+    },
+    onActiveTrayChange: function onActiveTrayChange(model, tray) {
+      var relevantTray = tray === null ? model.previous('activeTray') : tray;
+
+      if (!relevantTray) {
+        return;
+      }
+      var action = tray === null ? Drupal.t('closed') : Drupal.t('opened');
+      var trayNameElement = relevantTray.querySelector('.toolbar-tray-name');
+      var text = void 0;
+      if (trayNameElement !== null) {
+        text = Drupal.t('Tray "@tray" @action.', {
+          '@tray': trayNameElement.textContent,
+          '@action': action
+        });
+      } else {
+        text = Drupal.t('Tray @action.', { '@action': action });
+      }
+      Drupal.announce(text);
+    }
+  });
+})(Backbone, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings, Backbone) {
+  Drupal.toolbar.ToolbarVisualView = Backbone.View.extend({
+    events: function events() {
+      var touchEndToClick = function touchEndToClick(event) {
+        event.preventDefault();
+        event.target.click();
+      };
+
+      return {
+        'click .toolbar-bar .toolbar-tab .trigger': 'onTabClick',
+        'click .toolbar-toggle-orientation button': 'onOrientationToggleClick',
+        'touchend .toolbar-bar .toolbar-tab .trigger': touchEndToClick,
+        'touchend .toolbar-toggle-orientation button': touchEndToClick
+      };
+    },
+    initialize: function initialize(options) {
+      this.strings = options.strings;
+
+      this.listenTo(this.model, 'change:activeTab change:orientation change:isOriented change:isTrayToggleVisible', this.render);
+      this.listenTo(this.model, 'change:mqMatches', this.onMediaQueryChange);
+      this.listenTo(this.model, 'change:offsets', this.adjustPlacement);
+      this.listenTo(this.model, 'change:activeTab change:orientation change:isOriented', this.updateToolbarHeight);
+
+      this.$el.find('.toolbar-tray .toolbar-lining').append(Drupal.theme('toolbarOrientationToggle'));
+
+      this.model.trigger('change:activeTab');
+    },
+    updateToolbarHeight: function updateToolbarHeight() {
+      var toolbarTabOuterHeight = $('#toolbar-bar').find('.toolbar-tab').outerHeight() || 0;
+      var toolbarTrayHorizontalOuterHeight = $('.is-active.toolbar-tray-horizontal').outerHeight() || 0;
+      this.model.set('height', toolbarTabOuterHeight + toolbarTrayHorizontalOuterHeight);
+
+      $('body').css({
+        'padding-top': this.model.get('height')
+      });
+
+      this.triggerDisplace();
+    },
+    triggerDisplace: function triggerDisplace() {
+      _.defer(function () {
+        Drupal.displace(true);
+      });
+    },
+    render: function render() {
+      this.updateTabs();
+      this.updateTrayOrientation();
+      this.updateBarAttributes();
+
+      $('body').removeClass('toolbar-loading');
+
+      if (this.model.changed.orientation === 'vertical' || this.model.changed.activeTab) {
+        this.loadSubtrees();
+      }
+
+      return this;
+    },
+    onTabClick: function onTabClick(event) {
+      if (event.currentTarget.hasAttribute('data-toolbar-tray')) {
+        var activeTab = this.model.get('activeTab');
+        var clickedTab = event.currentTarget;
+
+        this.model.set('activeTab', !activeTab || clickedTab !== activeTab ? clickedTab : null);
+
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    onOrientationToggleClick: function onOrientationToggleClick(event) {
+      var orientation = this.model.get('orientation');
+
+      var antiOrientation = orientation === 'vertical' ? 'horizontal' : 'vertical';
+      var locked = antiOrientation === 'vertical';
+
+      if (locked) {
+        localStorage.setItem('Drupal.toolbar.trayVerticalLocked', 'true');
+      } else {
+        localStorage.removeItem('Drupal.toolbar.trayVerticalLocked');
+      }
+
+      this.model.set({
+        locked: locked,
+        orientation: antiOrientation
+      }, {
+        validate: true,
+        override: true
+      });
+
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    updateTabs: function updateTabs() {
+      var $tab = $(this.model.get('activeTab'));
+
+      $(this.model.previous('activeTab')).removeClass('is-active').prop('aria-pressed', false);
+
+      $(this.model.previous('activeTray')).removeClass('is-active');
+
+      if ($tab.length > 0) {
+        $tab.addClass('is-active').prop('aria-pressed', true);
+        var name = $tab.attr('data-toolbar-tray');
+
+        var id = $tab.get(0).id;
+        if (id) {
+          localStorage.setItem('Drupal.toolbar.activeTabID', JSON.stringify(id));
+        }
+
+        var $tray = this.$el.find('[data-toolbar-tray="' + name + '"].toolbar-tray');
+        if ($tray.length) {
+          $tray.addClass('is-active');
+          this.model.set('activeTray', $tray.get(0));
+        } else {
+          this.model.set('activeTray', null);
+        }
+      } else {
+        this.model.set('activeTray', null);
+        localStorage.removeItem('Drupal.toolbar.activeTabID');
+      }
+    },
+    updateBarAttributes: function updateBarAttributes() {
+      var isOriented = this.model.get('isOriented');
+      if (isOriented) {
+        this.$el.find('.toolbar-bar').attr('data-offset-top', '');
+      } else {
+        this.$el.find('.toolbar-bar').removeAttr('data-offset-top');
+      }
+
+      this.$el.toggleClass('toolbar-oriented', isOriented);
+    },
+    updateTrayOrientation: function updateTrayOrientation() {
+      var orientation = this.model.get('orientation');
+
+      var antiOrientation = orientation === 'vertical' ? 'horizontal' : 'vertical';
+
+      $('body').toggleClass('toolbar-vertical', orientation === 'vertical').toggleClass('toolbar-horizontal', orientation === 'horizontal');
+
+      var removeClass = antiOrientation === 'horizontal' ? 'toolbar-tray-horizontal' : 'toolbar-tray-vertical';
+      var $trays = this.$el.find('.toolbar-tray').removeClass(removeClass).addClass('toolbar-tray-' + orientation);
+
+      var iconClass = 'toolbar-icon-toggle-' + orientation;
+      var iconAntiClass = 'toolbar-icon-toggle-' + antiOrientation;
+      var $orientationToggle = this.$el.find('.toolbar-toggle-orientation').toggle(this.model.get('isTrayToggleVisible'));
+      $orientationToggle.find('button').val(antiOrientation).attr('title', this.strings[antiOrientation]).text(this.strings[antiOrientation]).removeClass(iconClass).addClass(iconAntiClass);
+
+      var dir = document.documentElement.dir;
+      var edge = dir === 'rtl' ? 'right' : 'left';
+
+      $trays.removeAttr('data-offset-left data-offset-right data-offset-top');
+
+      $trays.filter('.toolbar-tray-vertical.is-active').attr('data-offset-' + edge, '');
+
+      $trays.filter('.toolbar-tray-horizontal.is-active').attr('data-offset-top', '');
+    },
+    adjustPlacement: function adjustPlacement() {
+      var $trays = this.$el.find('.toolbar-tray');
+      if (!this.model.get('isOriented')) {
+        $trays.removeClass('toolbar-tray-horizontal').addClass('toolbar-tray-vertical');
+      }
+    },
+    loadSubtrees: function loadSubtrees() {
+      var $activeTab = $(this.model.get('activeTab'));
+      var orientation = this.model.get('orientation');
+
+      if (!this.model.get('areSubtreesLoaded') && typeof $activeTab.data('drupal-subtrees') !== 'undefined' && orientation === 'vertical') {
+        var subtreesHash = drupalSettings.toolbar.subtreesHash;
+        var theme = drupalSettings.ajaxPageState.theme;
+        var endpoint = Drupal.url('toolbar/subtrees/' + subtreesHash);
+        var cachedSubtreesHash = localStorage.getItem('Drupal.toolbar.subtreesHash.' + theme);
+        var cachedSubtrees = JSON.parse(localStorage.getItem('Drupal.toolbar.subtrees.' + theme));
+        var isVertical = this.model.get('orientation') === 'vertical';
+
+        if (isVertical && subtreesHash === cachedSubtreesHash && cachedSubtrees) {
+          Drupal.toolbar.setSubtrees.resolve(cachedSubtrees);
+        } else if (isVertical) {
+            localStorage.removeItem('Drupal.toolbar.subtreesHash.' + theme);
+            localStorage.removeItem('Drupal.toolbar.subtrees.' + theme);
+
+            Drupal.ajax({ url: endpoint }).execute();
+
+            localStorage.setItem('Drupal.toolbar.subtreesHash.' + theme, subtreesHash);
+          }
+      }
+    }
+  });
+})(jQuery, Drupal, drupalSettings, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal) {
+  function TabbingManager() {
+    this.stack = [];
+  }
+
+  function TabbingContext(options) {
+    $.extend(this, {
+      level: null,
+
+      $tabbableElements: $(),
+
+      $disabledElements: $(),
+
+      released: false,
+
+      active: false
+    }, options);
+  }
+
+  $.extend(TabbingManager.prototype, {
+    constrain: function constrain(elements) {
+      var il = this.stack.length;
+      for (var i = 0; i < il; i++) {
+        this.stack[i].deactivate();
+      }
+
+      var $elements = $(elements).find(':tabbable').addBack(':tabbable');
+
+      var tabbingContext = new TabbingContext({
+        level: this.stack.length,
+        $tabbableElements: $elements
+      });
+
+      this.stack.push(tabbingContext);
+
+      tabbingContext.activate();
+
+      $(document).trigger('drupalTabbingConstrained', tabbingContext);
+
+      return tabbingContext;
+    },
+    release: function release() {
+      var toActivate = this.stack.length - 1;
+      while (toActivate >= 0 && this.stack[toActivate].released) {
+        toActivate--;
+      }
+
+      this.stack.splice(toActivate + 1);
+
+      if (toActivate >= 0) {
+        this.stack[toActivate].activate();
+      }
+    },
+    activate: function activate(tabbingContext) {
+      var $set = tabbingContext.$tabbableElements;
+      var level = tabbingContext.level;
+
+      var $disabledSet = $(':tabbable').not($set);
+
+      tabbingContext.$disabledElements = $disabledSet;
+
+      var il = $disabledSet.length;
+      for (var i = 0; i < il; i++) {
+        this.recordTabindex($disabledSet.eq(i), level);
+      }
+
+      $disabledSet.prop('tabindex', -1).prop('autofocus', false);
+
+      var $hasFocus = $set.filter('[autofocus]').eq(-1);
+
+      if ($hasFocus.length === 0) {
+        $hasFocus = $set.eq(0);
+      }
+      $hasFocus.trigger('focus');
+    },
+    deactivate: function deactivate(tabbingContext) {
+      var $set = tabbingContext.$disabledElements;
+      var level = tabbingContext.level;
+      var il = $set.length;
+      for (var i = 0; i < il; i++) {
+        this.restoreTabindex($set.eq(i), level);
+      }
+    },
+    recordTabindex: function recordTabindex($el, level) {
+      var tabInfo = $el.data('drupalOriginalTabIndices') || {};
+      tabInfo[level] = {
+        tabindex: $el[0].getAttribute('tabindex'),
+        autofocus: $el[0].hasAttribute('autofocus')
+      };
+      $el.data('drupalOriginalTabIndices', tabInfo);
+    },
+    restoreTabindex: function restoreTabindex($el, level) {
+      var tabInfo = $el.data('drupalOriginalTabIndices');
+      if (tabInfo && tabInfo[level]) {
+        var data = tabInfo[level];
+        if (data.tabindex) {
+          $el[0].setAttribute('tabindex', data.tabindex);
+        } else {
+            $el[0].removeAttribute('tabindex');
+          }
+        if (data.autofocus) {
+          $el[0].setAttribute('autofocus', 'autofocus');
+        }
+
+        if (level === 0) {
+          $el.removeData('drupalOriginalTabIndices');
+        } else {
+          var levelToDelete = level;
+          while (tabInfo.hasOwnProperty(levelToDelete)) {
+            delete tabInfo[levelToDelete];
+            levelToDelete++;
+          }
+          $el.data('drupalOriginalTabIndices', tabInfo);
+        }
+      }
+    }
+  });
+
+  $.extend(TabbingContext.prototype, {
+    release: function release() {
+      if (!this.released) {
+        this.deactivate();
+        this.released = true;
+        Drupal.tabbingManager.release(this);
+
+        $(document).trigger('drupalTabbingContextReleased', this);
+      }
+    },
+    activate: function activate() {
+      if (!this.active && !this.released) {
+        this.active = true;
+        Drupal.tabbingManager.activate(this);
+
+        $(document).trigger('drupalTabbingContextActivated', this);
+      }
+    },
+    deactivate: function deactivate() {
+      if (this.active) {
+        this.active = false;
+        Drupal.tabbingManager.deactivate(this);
+
+        $(document).trigger('drupalTabbingContextDeactivated', this);
+      }
+    }
+  });
+
+  if (Drupal.tabbingManager) {
+    return;
+  }
+
+  Drupal.tabbingManager = new TabbingManager();
+})(jQuery, Drupal);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone) {
+  var strings = {
+    tabbingReleased: Drupal.t('Tabbing is no longer constrained by the Contextual module.'),
+    tabbingConstrained: Drupal.t('Tabbing is constrained to a set of @contextualsCount and the edit mode toggle.'),
+    pressEsc: Drupal.t('Press the esc key to exit.')
+  };
+
+  function initContextualToolbar(context) {
+    if (!Drupal.contextual || !Drupal.contextual.collection) {
+      return;
+    }
+
+    var contextualToolbar = Drupal.contextualToolbar;
+    contextualToolbar.model = new contextualToolbar.StateModel({
+      isViewing: localStorage.getItem('Drupal.contextualToolbar.isViewing') !== 'false'
+    }, {
+      contextualCollection: Drupal.contextual.collection
+    });
+
+    var viewOptions = {
+      el: $('.toolbar .toolbar-bar .contextual-toolbar-tab'),
+      model: contextualToolbar.model,
+      strings: strings
+    };
+    new contextualToolbar.VisualView(viewOptions);
+    new contextualToolbar.AuralView(viewOptions);
+  }
+
+  Drupal.behaviors.contextualToolbar = {
+    attach: function attach(context) {
+      if ($('body').once('contextualToolbar-init').length) {
+        initContextualToolbar(context);
+      }
+    }
+  };
+
+  Drupal.contextualToolbar = {
+    model: null
+  };
+})(jQuery, Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, Backbone) {
+  Drupal.contextualToolbar.StateModel = Backbone.Model.extend({
+    defaults: {
+      isViewing: true,
+
+      isVisible: false,
+
+      contextualCount: 0,
+
+      tabbingContext: null
+    },
+
+    initialize: function initialize(attrs, options) {
+      this.listenTo(options.contextualCollection, 'reset remove add', this.countContextualLinks);
+      this.listenTo(options.contextualCollection, 'add', this.lockNewContextualLinks);
+
+      this.listenTo(this, 'change:contextualCount', this.updateVisibility);
+
+      this.listenTo(this, 'change:isViewing', function (model, isViewing) {
+        options.contextualCollection.each(function (contextualModel) {
+          contextualModel.set('isLocked', !isViewing);
+        });
+      });
+    },
+    countContextualLinks: function countContextualLinks(contextualModel, contextualCollection) {
+      this.set('contextualCount', contextualCollection.length);
+    },
+    lockNewContextualLinks: function lockNewContextualLinks(contextualModel, contextualCollection) {
+      if (!this.get('isViewing')) {
+        contextualModel.set('isLocked', true);
+      }
+    },
+    updateVisibility: function updateVisibility() {
+      this.set('isVisible', this.get('contextualCount') > 0);
+    }
+  });
+})(Drupal, Backbone);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, Backbone, _) {
+  Drupal.contextualToolbar.AuralView = Backbone.View.extend({
+    announcedOnce: false,
+
+    initialize: function initialize(options) {
+      this.options = options;
+
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:isViewing', this.manageTabbing);
+
+      $(document).on('keyup', _.bind(this.onKeypress, this));
+      this.manageTabbing();
+    },
+    render: function render() {
+      this.$el.find('button').attr('aria-pressed', !this.model.get('isViewing'));
+
+      return this;
+    },
+    manageTabbing: function manageTabbing() {
+      var tabbingContext = this.model.get('tabbingContext');
+
+      if (tabbingContext) {
+        if (tabbingContext.active) {
+          Drupal.announce(this.options.strings.tabbingReleased);
+        }
+        tabbingContext.release();
+      }
+
+      if (!this.model.get('isViewing')) {
+        tabbingContext = Drupal.tabbingManager.constrain($('.contextual-toolbar-tab, .contextual'));
+        this.model.set('tabbingContext', tabbingContext);
+        this.announceTabbingConstraint();
+        this.announcedOnce = true;
+      }
+    },
+    announceTabbingConstraint: function announceTabbingConstraint() {
+      var strings = this.options.strings;
+      Drupal.announce(Drupal.formatString(strings.tabbingConstrained, {
+        '@contextualsCount': Drupal.formatPlural(Drupal.contextual.collection.length, '@count contextual link', '@count contextual links')
+      }));
+      Drupal.announce(strings.pressEsc);
+    },
+    onKeypress: function onKeypress(event) {
+      if (!this.announcedOnce && event.keyCode === 9 && !this.model.get('isViewing')) {
+        this.announceTabbingConstraint();
+
+        this.announcedOnce = true;
+      }
+
+      if (event.keyCode === 27) {
+        this.model.set('isViewing', true);
+      }
+    }
+  });
+})(jQuery, Drupal, Backbone, _);;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function (Drupal, Backbone) {
+  Drupal.contextualToolbar.VisualView = Backbone.View.extend({
+    events: function events() {
+      var touchEndToClick = function touchEndToClick(event) {
+        event.preventDefault();
+        event.target.click();
+      };
+
+      return {
+        click: function click() {
+          this.model.set('isViewing', !this.model.get('isViewing'));
+        },
+
+        touchend: touchEndToClick
+      };
+    },
+    initialize: function initialize() {
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change:isViewing', this.persist);
+    },
+    render: function render() {
+      this.$el.toggleClass('hidden', !this.model.get('isVisible'));
+
+      this.$el.find('button').toggleClass('is-active', !this.model.get('isViewing'));
+
+      return this;
+    },
+    persist: function persist(model, isViewing) {
+      if (!isViewing) {
+        localStorage.setItem('Drupal.contextualToolbar.isViewing', 'false');
+      } else {
+        localStorage.removeItem('Drupal.contextualToolbar.isViewing');
+      }
+    }
+  });
+})(Drupal, Backbone);;
+;/*!
+ * hoverIntent v1.8.1 // 2014.08.11 // jQuery v1.9.1+
+ * http://briancherne.github.io/jquery-hoverIntent/
+ *
+ * You may use hoverIntent under the terms of the MIT license. Basically that
+ * means you are free to use hoverIntent as long as this header is left intact.
+ * Copyright 2007, 2014 Brian Cherne
+ */
+
+/* hoverIntent is similar to jQuery's built-in "hover" method except that
+ * instead of firing the handlerIn function immediately, hoverIntent checks
+ * to see if the user's mouse has slowed down (beneath the sensitivity
+ * threshold) before firing the event. The handlerOut function is only
+ * called after a matching handlerIn.
+ *
+ * // basic usage ... just like .hover()
+ * .hoverIntent( handlerIn, handlerOut )
+ * .hoverIntent( handlerInOut )
+ *
+ * // basic usage ... with event delegation!
+ * .hoverIntent( handlerIn, handlerOut, selector )
+ * .hoverIntent( handlerInOut, selector )
+ *
+ * // using a basic configuration object
+ * .hoverIntent( config )
+ *
+ * @param  handlerIn   function OR configuration object
+ * @param  handlerOut  function OR selector for delegation OR undefined
+ * @param  selector    selector OR undefined
+ * @author Brian Cherne <brian(at)cherne(dot)net>
+ */(function (factory) {
+  'use strict';
+  if (typeof define === 'function' && define.amd) {
+    define(['jquery'], factory);
+  } else if (jQuery && !jQuery.fn.hoverIntent) {
+    factory(jQuery);
+  }
+})(function ($) {
+  'use strict';
+
+  // default configuration values
+  var _cfg = {
+    interval: 100,
+    sensitivity: 6,
+    timeout: 0
+  };
+
+  // counter used to generate an ID for each instance
+  var INSTANCE_COUNT = 0;
+
+  // current X and Y position of mouse, updated during mousemove tracking (shared across instances)
+  var cX, cY;
+
+  // saves the current pointer position coordinates based on the given mousemove event
+  var track = function (ev) {
+    cX = ev.pageX;
+    cY = ev.pageY;
+  };
+
+  // compares current and previous mouse positions
+  var compare = function (ev,$el,s,cfg) {
+    // compare mouse positions to see if pointer has slowed enough to trigger `over` function
+    if ( Math.sqrt( (s.pX - cX) * (s.pX - cX) + (s.pY - cY) * (s.pY - cY) ) < cfg.sensitivity ) {
+      $el.off(s.event,track);
+      delete s.timeoutId;
+      // set hoverIntent state as active for this element (permits `out` handler to trigger)
+      s.isActive = true;
+      // overwrite old mouseenter event coordinates with most recent pointer position
+      ev.pageX = cX; ev.pageY = cY;
+      // clear coordinate data from state object
+      delete s.pX; delete s.pY;
+      return cfg.over.apply($el[0],[ev]);
+    } else {
+      // set previous coordinates for next comparison
+      s.pX = cX; s.pY = cY;
+      // use self-calling timeout, guarantees intervals are spaced out properly (avoids JavaScript timer bugs)
+      s.timeoutId = setTimeout( function () {compare(ev, $el, s, cfg);} , cfg.interval );
+    }
+  };
+
+  // triggers given `out` function at configured `timeout` after a mouseleave and clears state
+  var delay = function (ev,$el,s,out) {
+    delete $el.data('hoverIntent')[s.id];
+    return out.apply($el[0],[ev]);
+  };
+
+  $.fn.hoverIntent = function (handlerIn,handlerOut,selector) {
+    // instance ID, used as a key to store and retrieve state information on an element
+    var instanceId = INSTANCE_COUNT++;
+
+    // extend the default configuration and parse parameters
+    var cfg = $.extend({}, _cfg);
+    if ( $.isPlainObject(handlerIn) ) {
+      cfg = $.extend(cfg, handlerIn);
+      if ( !$.isFunction(cfg.out) ) {
+        cfg.out = cfg.over;
+      }
+    } else if ( $.isFunction(handlerOut) ) {
+      cfg = $.extend(cfg, { over: handlerIn, out: handlerOut, selector: selector } );
+    } else {
+      cfg = $.extend(cfg, { over: handlerIn, out: handlerIn, selector: handlerOut } );
+    }
+
+    // A private function for handling mouse 'hovering'
+    var handleHover = function (e) {
+      // cloned event to pass to handlers (copy required for event object to be passed in IE)
+      var ev = $.extend({},e);
+
+      // the current target of the mouse event, wrapped in a jQuery object
+      var $el = $(this);
+
+      // read hoverIntent data from element (or initialize if not present)
+      var hoverIntentData = $el.data('hoverIntent');
+      if (!hoverIntentData) { $el.data('hoverIntent', (hoverIntentData = {})); }
+
+      // read per-instance state from element (or initialize if not present)
+      var state = hoverIntentData[instanceId];
+      if (!state) { hoverIntentData[instanceId] = state = { id: instanceId }; }
+
+      // state properties:
+      // id = instance ID, used to clean up data
+      // timeoutId = timeout ID, reused for tracking mouse position and delaying "out" handler
+      // isActive = plugin state, true after `over` is called just until `out` is called
+      // pX, pY = previously-measured pointer coordinates, updated at each polling interval
+      // event = string representing the namespaced event used for mouse tracking
+
+      // clear any existing timeout
+      if (state.timeoutId) { state.timeoutId = clearTimeout(state.timeoutId); }
+
+      // namespaced event used to register and unregister mousemove tracking
+      var mousemove = state.event = 'mousemove.hoverIntent.hoverIntent' + instanceId;
+
+      // handle the event, based on its type
+      if (e.type === 'mouseenter') {
+        // do nothing if already active
+        if (state.isActive) { return; }
+        // set "previous" X and Y position based on initial entry point
+        state.pX = ev.pageX; state.pY = ev.pageY;
+        // update "current" X and Y position based on mousemove
+        $el.off(mousemove,track).on(mousemove,track);
+        // start polling interval (self-calling timeout) to compare mouse coordinates over time
+        state.timeoutId = setTimeout( function () {compare(ev,$el,state,cfg);} , cfg.interval );
+      } else { // "mouseleave"
+        // do nothing if not already active
+        if (!state.isActive) { return; }
+        // unbind expensive mousemove event
+        $el.off(mousemove,track);
+        // if hoverIntent state is true, then call the mouseOut function after the specified delay
+        state.timeoutId = setTimeout( function () {delay(ev,$el,state,cfg.out);} , cfg.timeout );
+      }
+    };
+
+    // listen for mouseenter and mouseleave
+    return this.on({'mouseenter.hoverIntent':handleHover,'mouseleave.hoverIntent':handleHover}, cfg.selector);
+  };
+});
+;
+(function ($, Drupal) {
+  Drupal.behaviors.adminToolbar = {
+    attach: function (context, settings) {
+
+      $('a.toolbar-icon', context).removeAttr('title');
+
+      $('.toolbar-tray li.menu-item--expanded, .toolbar-tray ul li.menu-item--expanded .menu-item', context).hoverIntent({
+        over: function () {
+          // At the current depth, we should delete all "hover-intent" classes.
+          // Other wise we get unwanted behaviour where menu items are expanded while already in hovering other ones.
+          $(this).parent().find('li').removeClass('hover-intent');
+          $(this).addClass('hover-intent');
+        },
+        out: function () {
+          $(this).removeClass('hover-intent');
+        },
+        timeout: 250
+      });
+
+      // Make the toolbar menu navigable with keyboard.
+      $('ul.toolbar-menu li.menu-item--expanded a', context).on('focusin', function () {
+        $('li.menu-item--expanded', context).removeClass('hover-intent');
+        $(this).parents('li.menu-item--expanded').addClass('hover-intent');
+      });
+
+      $('ul.toolbar-menu li.menu-item a', context).keydown(function (e) {
+        if ((e.shiftKey && (e.keyCode || e.which) == 9)) {
+          if ($(this).parent('.menu-item').prev().hasClass('menu-item--expanded')) {
+            $(this).parent('.menu-item').prev().addClass('hover-intent');
+          }
+        }
+      });
+
+      $('.toolbar-menu:first-child > .menu-item:not(.menu-item--expanded) a, .toolbar-tab > a', context).on('focusin', function () {
+        $('.menu-item--expanded').removeClass('hover-intent');
+      });
+
+      $('.toolbar-menu:first-child > .menu-item', context).on('hover', function () {
+        $(this, 'a').css("background: #fff;");
+      });
+
+      $('ul:not(.toolbar-menu)', context).on({
+        mousemove: function () {
+          $('li.menu-item--expanded').removeClass('hover-intent');
+        },
+        hover: function () {
+          $('li.menu-item--expanded').removeClass('hover-intent');
+        }
+      });
+
+      // Always hide the dropdown menu on mobile.
+      if ($('body:not(.toolbar-fixed) #toolbar-item-administration-tray').hasClass('toolbar-tray-vertical')) {
+        $('#toolbar-item-administration').removeClass('is-active');
+        $('#toolbar-item-administration-tray').removeClass('is-active');
+      };
+
+    }
+  };
+})(jQuery, Drupal);
+;
+/**
+* DO NOT EDIT THIS FILE.
+* See the following change record for more information,
+* https://www.drupal.org/node/2815083
+* @preserve
+**/
+
+(function ($, Drupal, drupalSettings) {
+  var pathInfo = drupalSettings.path;
+  var escapeAdminPath = sessionStorage.getItem('escapeAdminPath');
+  var windowLocation = window.location;
+
+  if (!pathInfo.currentPathIsAdmin && !/destination=/.test(windowLocation.search)) {
+    sessionStorage.setItem('escapeAdminPath', windowLocation);
+  }
+
+  Drupal.behaviors.escapeAdmin = {
+    attach: function attach() {
+      var $toolbarEscape = $('[data-toolbar-escape-admin]').once('escapeAdmin');
+      if ($toolbarEscape.length && pathInfo.currentPathIsAdmin) {
+        if (escapeAdminPath !== null) {
+          $toolbarEscape.attr('href', escapeAdminPath);
+        } else {
+          $toolbarEscape.text(Drupal.t('Home'));
+        }
+      }
+    }
+  };
+})(jQuery, Drupal, drupalSettings);;
